@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: opcua
+  datasource:
+    name: test
+    ##阿里云
+    url: jdbc:mysql://106.14.68.24:3333/gdtelassets?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+    username: gdtelassets
+    password: gdtelassets@pensoon
+    ##线上
+#    url: jdbc:mysql://172.51.118.10:3306/gdtelassets?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+#    username: gdtelassets
+#    password: AProcTel246!#%@assets
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    primary:
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      validation-query: SELECT 1 FROM DUAL
+      time-between-eviction-runs-millis: 300000
+      min-evictable-idle-time-millis: 1800000
+      initial-size: 5
+      max-active: 50
+      max-wait: 60000
+      min-idle: 5
+
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+logging:
+  path: ./logs

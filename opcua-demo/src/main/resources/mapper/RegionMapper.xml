@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.RegionMapper">
+    <select id="findRegionByParentId" parameterType="String" resultType="com.rookie.opcua.entity.Region">
+        select id,REGION_NAME from sys_region where PARENT_ID = #{parentId}
+    </select>
+
+</mapper>

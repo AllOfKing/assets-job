@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.RegularMssCountMapper">
+    <update id="truncateRegularMssCount">
+        truncate table t_regular_mss_count
+    </update>
+    <insert id="insertRegularMssCountList" parameterType="com.rookie.opcua.entity.RegularMssCount">
+        insert into t_regular_mss_count
+        (id,
+        dept_id,
+        dept_name,
+        p_id,
+        region_id,
+        is_leaf,
+        card_num,
+        gxwcf,
+        gxycf,
+        dbwcf,
+        dbycf,
+        pkwcf,
+        pkycf,
+        pywcf,
+        pyycf,
+        cflwcf,
+        cflycf
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.id},
+            #{item.deptId},
+            #{item.deptName},
+            #{item.pId},
+            #{item.regionId},
+            #{item.isLeaf},
+            #{item.cardNum},
+            #{item.gxwcf},
+            #{item.gxycf},
+            #{item.dbwcf},
+            #{item.dbycf},
+            #{item.pkwcf},
+            #{item.pkycf},
+            #{item.pywcf},
+            #{item.pyycf},
+            #{item.cflwcf},
+            #{item.cflycf}
+            )
+        </foreach>
+    </insert>
+
+
+</mapper>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.MatterDepartmentMapper">
+    <select id="findMatterDepartmentBycityCode" parameterType="String" resultType="com.rookie.opcua.entity.MatterDepartment">
+        select * from t_matter_department where city_code = #{cityCode}
+    </select>
+
+</mapper>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.ReqularAndSpecialYearCountMapper">
+        <insert id="insertReqularAndSpecialYearCountByList" parameterType="com.rookie.opcua.entity.ReqularAndSpecialYearCount">
+            insert into t_reqular_and_special_year_count
+            (
+            id,
+            company_code,
+            profit_group_code,
+            dept_id,
+            dept_name,
+            p_id,
+            region_id,
+            is_leaf,
+            invent_year,
+            regular_total_count,
+            regular_no_invent,
+            regular_invent,
+            regular_worth_value,
+            special_total_count,
+            special_no_invent,
+            special_invent,
+            special_worth_value,
+            create_time)
+            values
+            <foreach collection="list" item="item" index="index" separator=",">
+            (
+                #{item.id},
+                #{item.companyCode},
+                #{item.profitGroupCode},
+                #{item.deptId},
+                #{item.deptName},
+                #{item.pId},
+                #{item.regionId},
+                #{item.isLeaf},
+                #{item.inventYear},
+                #{item.regularTotalCount},
+                #{item.regularNoInvent},
+                #{item.regularInvent},
+                #{item.regularWorthValue},
+                #{item.specialTotalCount},
+                #{item.specialNoInvent},
+                #{item.specialInvent},
+                #{item.specialWorthValue},
+                #{item.createTime}
+                )
+            </foreach>
+        </insert>
+
+    <insert id="insertReqularAndSpecialYearCount" parameterType="com.rookie.opcua.entity.ReqularAndSpecialYearCount">
+        insert into t_reqular_and_special_year_count
+        (
+        id,
+        company_code,
+        profit_group_code,
+        dept_id,
+        dept_name,
+        p_id,
+        region_id,
+        is_leaf,
+        invent_year,
+        regular_total_count,
+        regular_no_invent,
+        regular_invent,
+        regular_worth_value,
+        special_total_count,
+        special_no_invent,
+        special_invent,
+        special_worth_value,
+        create_time)
+        values
+        (
+            #{id},
+            #{companyCode},
+            #{profitGroupCode},
+            #{deptId},
+            #{deptName},
+            #{pId},
+            #{regionId},
+            #{isLeaf},
+            #{inventYear},
+            #{regularTotalCount},
+            #{regularNoInvent},
+            #{regularInvent},
+            #{regularWorthValue},
+            #{specialTotalCount},
+            #{specialNoInvent},
+            #{specialInvent},
+            #{specialWorthValue},
+            #{createTime}
+        )
+    </insert>
+
+    <update id="truncate">
+        truncate table t_reqular_and_special_year_count
+    </update>
+</mapper>

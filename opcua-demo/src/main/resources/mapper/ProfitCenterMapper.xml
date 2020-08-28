@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.ProfitCenterMapper">
+<!--    <resultMap id="profitCenterMap"  type="com.rookie.opcua.dto.ProfitCenterDTO">-->
+<!--            <result column="region_id" jdbcType="VARCHAR" property="rId" />-->
+<!--            <result column="city_code" jdbcType="VARCHAR" property="cityCode"/>-->
+<!--            <result column="profit_code" jdbcType="VARCHAR" property="profitCode"/>-->
+<!--    </resultMap>-->
+
+    <select id="findProfitCenter" resultType="com.rookie.opcua.dto.ProfitCenterDTO">
+        select  pg.region_id as r_id ,p.city_code as city_code,p.profit_code as profit_code from t_profit_center p
+        left join t_profit_center_group pg on pg.profit_group_name = p.profit_group_name
+    </select>
+
+
+</mapper>

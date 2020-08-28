@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.InventProjectMapper">
+    <select id="findBatchId" resultType="com.rookie.opcua.entity.InventProject" parameterType="String">
+        SELECT i.id FROM t_invent_project p,t_project_batch b,t_invent_batch i
+        WHERE p.id=b.projectId AND b.batchId=i.id AND p.ItemCategory = '1'
+        AND i.batch_status = '1' AND i.region_ids = #{regionIds} AND p.projectName = #{projectName}
+    </select>
+
+    <select id="findBatchIdByYear"  resultType="com.rookie.opcua.entity.InventProject" parameterType="String">
+        SELECT i.id FROM t_invent_project p,t_project_batch b,t_invent_batch i
+        WHERE p.id=b.projectId AND b.batchId=i.id AND p.ItemCategory = '1'
+        AND i.batch_status = '1' AND i.region_ids = #{regionId} AND YEAR( p.createTime) = #{year}
+    </select>
+</mapper>

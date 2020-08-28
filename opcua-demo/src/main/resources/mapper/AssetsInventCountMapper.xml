@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.AssetsInventCountMapper">
+
+    <update id="createAssetsInventCount">
+        create table if not exists t_assets_invent_count_${assetsType} like t_assets_invent_count
+    </update>
+    
+    <update id="truncateAssetsInventCount" parameterType="String">
+        truncate TABLE t_assets_invent_count_${assetsType}
+    </update>
+
+    <update id="truncateAssetsInventCountSummary" parameterType="String">
+        truncate TABLE t_assets_invent_count
+    </update>
+
+    <insert id="insertInventCountForSummary" parameterType="com.rookie.opcua.entity.AssetsInventCount">
+        insert into t_assets_invent_count (id,
+        company_code,
+        mater_dept_code,
+        mater_dept_name,
+        dept_id,
+        dept_name,
+        p_id,
+        region_id,
+        is_leaf,
+        card_num,
+        not_invent,
+        invent,
+        app_scan_num,
+        app_not_scan_num,
+        pc_num,
+        inerrant_num,
+        wrong_num,
+        add_num,
+        losses_num,
+        worth_value) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.id},
+            #{item.companyCode},
+            #{item.materDeptCode},
+            #{item.materDeptName},
+            #{item.deptId},
+            #{item.deptName},
+            #{item.pId},
+            #{item.regionId},
+            #{item.isLeaf},
+            #{item.cardNum},
+            #{item.notInvent},
+            #{item.invent},
+            #{item.appScanNum},
+            #{item.appNotScanNum},
+            #{item.pcNum},
+            #{item.inerrantNum},
+            #{item.wrongNum},
+            #{item.addNum},
+            #{item.lossesNum},
+            #{item.worthValue}
+            )
+        </foreach>
+
+    </insert>
+
+
+    <insert id="insertInventCount" parameterType="list">
+        insert into t_assets_invent_count_${dto.assetsType} (
+        id,
+        company_code,
+        mater_dept_code,
+        mater_dept_name,
+        dept_id,
+        dept_name,
+        p_id,
+        region_id,
+        is_leaf,
+        card_num,
+        not_invent,
+        invent,
+        app_scan_num,
+        app_not_scan_num,
+        pc_num,
+        inerrant_num,
+        wrong_num,add_num,
+        losses_num,
+        worth_value)
+        values
+        <foreach collection="dto.list" item="item" index="index" separator=",">
+            (
+            #{item.id},
+            #{item.companyCode},
+            #{item.materDeptCode},
+            #{item.materDeptName},
+            #{item.deptId},
+            #{item.deptName},
+            #{item.pId},
+            #{item.regionId},
+            #{item.isLeaf},
+            #{item.cardNum},
+            #{item.notInvent},
+            #{item.invent},
+            #{item.appScanNum},
+            #{item.appNotScanNum},
+            #{item.pcNum},
+            #{item.inerrantNum},
+            #{item.wrongNum},
+            #{item.addNum},
+            #{item.lossesNum},
+            #{item.worthValue}
+            )
+        </foreach>
+    </insert>
+    
+    
+    <select id="findAssetsInventCountForSummary" parameterType="String" resultType="com.rookie.opcua.dto.AssetsInventCountDTO">
+        select t.company_code as companyCode, t.mater_dept_code as materDeptCode, t.mater_dept_name as materDeptName,
+        t.dept_id as deptId,t.dept_name as deptName,t.p_id as pId,t.region_id as regionId,
+        t.is_leaf as isLeaf,sum(t.card_num) as cardNum, sum(t.not_invent) as notInvent,sum(t.invent) as invent,
+        sum(t.app_scan_num) as appScanNum, sum(t.app_not_scan_num) as appNotScanNum,
+        sum(t.pc_num) as pcNum, sum(t.inerrant_num) as inerrantNum, sum(t.wrong_num) as wrongNum,
+        sum(t.add_num) as addNum, sum(t.losses_num) as lossesNum,sum(t.worth_value) as worthValue from (
+        ${sql} ) t group by t.company_code,t.mater_dept_code,t.mater_dept_name,t.dept_id,t.dept_name,t.p_id,t.region_id,t.is_leaf
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.RmAssetNewMapper">
+    <resultMap id="BaseResultMap" type="com.rookie.opcua.entity.RmAssetNew">
+        <result column="id" property="id"/>
+        <result column="SPEC_ID" property="specId"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="create_date" property="createDate"/>
+        <result column="modifier_id" property="modifierId"/>
+        <result column="modify_date" property="modifyDate"/>
+        <result column="version" property="version"/>
+        <result column="sharding_id" property="shardingId"/>
+        <result column="bukrs" property="bukrs"/>
+        <result column="osszseq" property="osszseq"/>
+        <result column="assetscardcode" property="assetscardcode"/>
+        <result column="secondaryassetscardcode" property="secondaryassetscardcode"/>
+        <result column="isestimate" property="isestimate"/>
+        <result column="asset_catalogue" property="assetCatalogue"/>
+        <result column="assetstype" property="assetstype"/>
+        <result column="description" property="description"/>
+        <result column="workcosttype" property="workcosttype"/>
+        <result column="namberunit" property="namberunit"/>
+        <result column="PNUMBER" property="PNUMBER"/>
+        <result column="manufacturer" property="manufacturer"/>
+        <result column="standard" property="standard"/>
+        <result column="address" property="address"/>
+        <result column="managedepartment" property="managedepartment"/>
+        <result column="usedepartment" property="usedepartment"/>
+        <result column="costcenter" property="costcenter"/>
+        <result column="supervisor" property="supervisor"/>
+        <result column="assetcustodian" property="assetcustodian"/>
+        <result column="assetkeeper" property="assetkeeper"/>
+        <result column="assetcustodian_account" property="assetcustodianAccount"/>
+        <result column="assetkeeper_account" property="assetkeeperAccount"/>
+        <result column="capitaldate" property="capitaldate"/>
+        <result column="wbs" property="wbs"/>
+        <result column="assetsrelegation" property="assetsrelegation"/>
+        <result column="isclientasset" property="isclientasset"/>
+        <result column="clientname" property="clientname"/>
+        <result column="assetsnature" property="assetsnature"/>
+        <result column="notes" property="notes"/>
+        <result column="abctype" property="abctype"/>
+        <result column="parent_asset_id" property="parentAssetId"/>
+        <result column="addtionreason" property="addtionreason"/>
+        <result column="accessory" property="accessory"/>
+        <result column="pgyz" property="pgyz"/>
+        <result column="pgljzj" property="pgljzj"/>
+        <result column="pgljjz" property="pgljjz"/>
+        <result column="isheldforsale" property="isheldforsale"/>
+        <result column="isoverage" property="isoverage"/>
+        <result column="isforsrcap" property="isforsrcap"/>
+        <result column="isidle" property="isidle"/>
+        <result column="isdevelopasset" property="isdevelopasset"/>
+        <result column="areacode" property="areacode"/>
+        <result column="countyoffices" property="countyoffices"/>
+        <result column="branch" property="branch"/>
+        <result column="businessofficeid" property="businessofficeid"/>
+        <result column="btscode" property="btscode"/>
+        <result column="team" property="team"/>
+        <result column="isexpansion" property="isexpansion"/>
+        <result column="isimpairment" property="isimpairment"/>
+        <result column="depreciaerange1" property="depreciaerange1"/>
+        <result column="depreciaecode1" property="depreciaecode1"/>
+        <result column="depreciaerange2" property="depreciaerange2"/>
+        <result column="depreciaecode2" property="depreciaecode2"/>
+        <result column="usefullife1" property="usefullife1"/>
+        <result column="period1" property="period1"/>
+        <result column="usefullife2" property="usefullife2"/>
+        <result column="period2" property="period2"/>
+        <result column="costvalue" property="costvalue"/>
+        <result column="depreciation" property="depreciation"/>
+        <result column="impairmentsum" property="impairmentsum"/>
+        <result column="netvalue" property="netvalue"/>
+        <result column="positioncode" property="positioncode"/>
+        <result column="inactivedate" property="inactivedate"/>
+        <result column="purchasedate" property="purchasedate"/>
+        <result column="purchaseyear" property="purchaseyear"/>
+        <result column="firstbilling" property="firstbilling"/>
+        <result column="isdisable" property="isdisable"/>
+        <result column="originalasset" property="originalasset"/>
+        <result column="developasset" property="developasset"/>
+        <result column="isrent" property="isrent"/>
+        <result column="islease" property="islease"/>
+        <result column="credentials" property="credentials"/>
+        <result column="demolitionstatu" property="demolitionstatu"/>
+        <result column="wbselement" property="wbselement"/>
+        <result column="usefulmonths" property="usefulmonths"/>
+        <result column="sourceassetno" property="sourceassetno"/>
+        <result column="isparent" property="isparent"/>
+        <result column="durablelife" property="durablelife"/>
+        <result column="data_source_id" property="dataSourceId"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="operation" property="operation"/>
+        <result column="status" property="status"/>
+        <result column="zzpfzc" property="zzpfzc"/>
+        <result column="zz_license" property="zzLicense"/>
+        <result column="zz_fz07" property="zzFz07"/>
+        <result column="zz_ldqrq" property="zzLdqrq"/>
+        <result column="zz_rjjsglbm" property="zzRjjsglbm"/>
+        <result column="zz_rjjswhbm" property="zzRjjswhbm"/>
+    </resultMap>
+
+
+    <select id="findById" resultType="com.rookie.opcua.entity.RmAssetNew">
+        select * from RM_ASSET_NEW where id = #{id}
+    </select>
+
+    <select id="findRmAssetByCount" resultType="integer">
+        select count(*) from RM_ASSET_NEW
+    </select>
+
+    <insert id="insertRmAssetsList" parameterType="com.rookie.opcua.entity.RmAssetNew">
+        insert into RM_ASSET_NEW (`id`, `spec_id`, `creator_id`, `create_date`, `modifier_id`, `modify_date`, `version`, `sharding_id`, `bukrs`, `osszseq`, `assetscardcode`, `secondaryassetscardcode`, `isestimate`, `asset_catalogue`, `assetstype`, `description`, `workcosttype`, `namberunit`, `PNUMBER`, `manufacturer`, `standard`, `address`, `managedepartment`, `usedepartment`, `costcenter`, `supervisor`, `assetcustodian`, `assetkeeper`, `assetcustodian_account`, `assetkeeper_account`, `capitaldate`, `wbs`, `assetsrelegation`, `isclientasset`, `clientname`, `assetsnature`, `notes`, `abctype`, `parent_asset_id`, `addtionreason`, `accessory`, `pgyz`, `pgljzj`, `pgljjz`, `isheldforsale`, `isoverage`, `isforsrcap`, `isidle`, `isdevelopasset`, `areacode`, `countyoffices`, `branch`, `businessofficeid`, `btscode`, `team`, `isexpansion`, `isimpairment`, `depreciaerange1`, `depreciaecode1`, `depreciaerange2`, `depreciaecode2`, `usefullife1`, `period1`, `usefullife2`, `period2`, `costvalue`, `depreciation`, `impairmentsum`, `netvalue`, `positioncode`, `inactivedate`, `purchasedate`, `purchaseyear`, `firstbilling`, `isdisable`, `originalasset`, `developasset`, `isrent`, `islease`, `credentials`, `demolitionstatu`, `wbselement`, `usefulmonths`, `sourceassetno`, `isparent`, `durablelife`, `data_source_id`, `update_time`, `operation`, `status`) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.id},
+            #{item.specId},
+            #{item.creatorId},
+            #{item.createDate},#{item.modifierId},
+            #{item.modifyDate},
+            #{item.version},
+            #{item.shardingId},
+            #{item.bukrs},
+            #{item.osszseq},
+            #{item.assetscardcode},
+            #{item.secondaryassetscardcode},
+            #{item.isestimate},
+            #{item.assetCatalogue},
+            #{item.assetstype},
+            #{item.description},
+            #{item.workcosttype},
+            #{item.namberunit},
+            #{item.PNUMBER},
+            #{item.manufacturer},
+            #{item.standard},
+            #{item.address},
+            #{item.managedepartment},
+            #{item.usedepartment},
+            #{item.costcenter},
+            #{item.supervisor},
+            #{item.assetcustodian},
+            #{item.assetkeeper},
+            #{item.assetcustodianAccount},
+            #{item.assetkeeperAccount},
+            #{item.capitaldate},
+            #{item.wbs},
+            #{item.assetsrelegation},
+            #{item.isclientasset},
+            #{item.clientname},
+            #{item.assetsnature},
+            #{item.notes},
+            #{item.abctype},
+            #{item.parentAssetId},
+            #{item.addtionreason},
+            #{item.accessory},
+            #{item.pgyz},
+            #{item.pgljzj},
+            #{item.pgljjz},
+            #{item.isheldforsale},
+            #{item.isoverage},
+            #{item.isforsrcap},
+            #{item.isidle},
+            #{item.isdevelopasset},
+            #{item.areacode},
+            #{item.countyoffices},
+            #{item.branch},
+            #{item.businessofficeid},
+            #{item.btscode},
+            #{item.team},
+            #{item.isexpansion},
+            #{item.isimpairment},
+            #{item.depreciaerange1},
+            #{item.depreciaecode1},
+            #{item.depreciaerange2},
+            #{item.depreciaecode2},
+            #{item.usefullife1},
+            #{item.period1},
+            #{item.usefullife2},
+            #{item.period2},
+            #{item.costvalue},
+            #{item.depreciation},
+            #{item.impairmentsum},
+            #{item.netvalue},
+            #{item.positioncode},
+            #{item.inactivedate},
+            #{item.purchasedate},
+            #{item.purchaseyear},
+            #{item.firstbilling},
+            #{item.isdisable},
+            #{item.originalasset},
+            #{item.developasset},
+            #{item.isrent},
+            #{item.islease},
+            #{item.credentials},
+            #{item.demolitionstatu},
+            #{item.wbselement},
+            #{item.usefulmonths},
+            #{item.sourceassetno},
+            #{item.isparent},
+            #{item.durablelife},
+            #{item.dataSourceId},
+            #{item.updateTime},
+            #{item.operation},
+            #{item.status}
+            )
+        </foreach>
+
+    </insert>
+    <update id="truncateRmAssets">
+        truncate table RM_ASSET_NEW
+    </update>
+
+    <select id="findAssetNewByPage" resultType="com.rookie.opcua.entity.RmAssetNew">
+        select * from RM_ASSET_NEW limit #{start},#{size}
+    </select>
+</mapper>

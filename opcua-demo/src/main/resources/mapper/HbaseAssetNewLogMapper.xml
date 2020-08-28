@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.HbaseAssetNewLogMapper">
+    <insert id="insertHbaseLog" parameterType="com.rookie.opcua.entity.HbaseAssetNewLog">
+        insert into hbase_asset_new_log
+        (id,pull_count,pull_day,pull_time,create_time)
+        values
+        (
+        #{id},
+        #{pullCount},
+        #{pullDay},
+        #{pullTime},
+        #{createTime}
+        )
+    </insert>
+</mapper>

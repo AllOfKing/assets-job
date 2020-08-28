@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.SyncAssetsCardMapper">
+    <update id="craeteSynAssetsCard" parameterType="String">
+        create table if not exists t_sync_assets_card_${regionId} (like t_sync_assets_card)
+    </update>
+</mapper>
