@@ -13,6 +13,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @MapperScan("com.rookie.opcua.mapper")
 public class OpcUaApplication {
     public static void main(String[] args) {
+
+        System.out.println("启动。。。。。");
         SpringApplication.run(OpcUaApplication.class, args);
     }
 }
