@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.ProfitAndLossCountMapper">
+
+    <resultMap type="com.rookie.opcua.entity.ProfitAndLossCount" id="ProfiandLossCountMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="companyCode" column="company_code" jdbcType="VARCHAR"/>
+        <result property="deptId" column="dept_id" jdbcType="VARCHAR"/>
+        <result property="deptName" column="dept_name" jdbcType="VARCHAR"/>
+        <result property="deptDesc" column="dept_desc" jdbcType="VARCHAR"/>
+        <result property="pId" column="p_id" jdbcType="VARCHAR"/>
+        <result property="regionId" column="region_id" jdbcType="VARCHAR"/>
+        <result property="isLeaf" column="is_leaf" jdbcType="VARCHAR"/>
+        <result property="inventYear" column="invent_year" jdbcType="VARCHAR"/>
+        <result property="loseMoneyCount" column="lose_money_count" jdbcType="VARCHAR"/>
+        <result property="loseMoneyNetWorth" column="lose_money_net_worth" jdbcType="VARCHAR"/>
+        <result property="preAgeCount" column="pre_age_count" jdbcType="VARCHAR"/>
+        <result property="preAgeNetWorth" column="pre_age_net_worth" jdbcType="VARCHAR"/>
+        <result property="scrappedCount" column="scrapped_count" jdbcType="VARCHAR"/>
+        <result property="scrappedWorth" column="scrapped_worth" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询统计信息-->
+    <select id="selectLossCount" resultType="com.rookie.opcua.entity.ProfitAndLossCount" >
+
+        SELECT
+            profit.*,
+            org.DEPARTMENT_NAME as deptName,
+            org.DESCRIPTION AS deptDesc,
+            org.PARENT_ID AS pId
+        FROM
+            (
+        SELECT
+            COUNT( 1 ) AS loseMoneyCount,
+            SUM( worth_value ) AS loseMoneyNetWorth,
+            SUM( IF ( ( ass.is_overdue = '1' ), 1, 0 ) ) AS preAgeCount,
+            SUM( IF ( ( ass.is_overdue = '1' ), worth_value, 0 ) ) AS preAgeNetWorth,
+            SUM( IF ( ( ass.is_for_srcap = '1' ), 1, 0 ) ) AS scrappedCount,
+            SUM( IF ( ( ass.is_for_srcap = '1' ), worth_value, 0 ) ) AS scrappedWorth,
+            dep.organ_id AS deptId,
+            ass.company_code AS companyCode,
+            DATE_FORMAT( assets_create_time, '%Y' ) AS inventYear
+        FROM
+            t_assets_info_${org} ass,
+            t_use_department dep
+        WHERE
+            ass.use_dept_code = dep.use_code
+            AND ass.company_code IS NOT NULL
+            AND dep.organ_id IS NOT NULL
+            AND dep.organ_id != ''
+            AND assets_create_time IS NOT NULL
+        GROUP BY
+            ass.company_code,
+            organ_id,
+            DATE_FORMAT( assets_create_time, '%Y' )
+            ) profit
+            LEFT JOIN sys_invent_organ org ON profit.deptId = org.id
+    </select>
+
+   <!--根据年份查询统计信息-->
+    <select id="selectLossCountByYear" resultType="com.rookie.opcua.entity.ProfitAndLossCount" >
+
+        SELECT
+            profit.*,
+            org.DEPARTMENT_NAME as deptName,
+            org.DESCRIPTION AS deptDesc,
+            org.PARENT_ID AS pId
+        FROM
+            (
+        SELECT
+            COUNT( 1 ) AS loseMoneyCount,
+            SUM( worth_value ) AS loseMoneyNetWorth,
+            SUM( IF ( ( ass.is_overdue = '1' ), 1, 0 ) ) AS preAgeCount,
+            SUM( IF ( ( ass.is_overdue = '1' ), worth_value, 0 ) ) AS preAgeNetWorth,
+            SUM( IF ( ( ass.is_for_srcap = '1' ), 1, 0 ) ) AS scrappedCount,
+            SUM( IF ( ( ass.is_for_srcap = '1' ), worth_value, 0 ) ) AS scrappedWorth,
+            dep.organ_id AS deptId,
+            ass.company_code AS companyCode,
+            DATE_FORMAT( assets_create_time, '%Y' ) AS inventYear
+        FROM
+            t_assets_info_${org} ass,
+            t_use_department dep
+        WHERE
+            ass.use_dept_code = dep.use_code
+            AND ass.company_code IS NOT NULL
+            AND dep.organ_id IS NOT NULL
+            AND dep.organ_id != ''
+            AND assets_create_time IS NOT NULL
+            AND year(assets_create_time) = #{year}
+        GROUP BY
+            ass.company_code,
+            organ_id
+            ) profit
+            LEFT JOIN sys_invent_organ org ON profit.deptId = org.id
+    </select>
+
+    <insert id="batchInsert" keyProperty="id">
+        INSERT INTO t_profit_and_loss_count
+        (
+        id,
+        company_code,
+        dept_id,
+        batch_id,
+        dept_name,
+        dept_desc,
+        p_id,
+        region_id,
+        is_leaf,
+        invent_year,
+        lose_money_count,
+        lose_money_net_worth,
+        pre_age_count,
+        pre_age_net_worth,
+        scrapped_count,
+        scrapped_worth
+         ) VALUES
+        <foreach collection="list" item="pro" index="index" separator=",">
+            (
+            #{pro.id},
+            #{pro.companyCode},
+            #{pro.deptId},
+            #{pro.batchId},
+            #{pro.deptName},
+            #{pro.deptDesc},
+            #{pro.pId},
+            #{pro.regionId},
+            #{pro.isLeaf},
+            #{pro.inventYear},
+            #{pro.loseMoneyCount},
+            #{pro.loseMoneyNetWorth},
+            #{pro.preAgeCount},
+            #{pro.preAgeNetWorth},
+            #{pro.scrappedCount},
+            #{pro.scrappedWorth}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteBatch">
+        delete from t_profit_and_loss_count
+        where (company_code,dept_id,batch_id) in
+        <foreach item="item" index="index" collection="list" separator="," open="(" close=")">
+            (#{item.companyCode},#{item.deptId},#{item.batchId})
+        </foreach>
+    </delete>
+
+</mapper>

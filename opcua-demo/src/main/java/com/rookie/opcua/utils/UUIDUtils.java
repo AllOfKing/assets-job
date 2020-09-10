@@ -16,7 +16,7 @@ public class UUIDUtils {
                 cs[j++]=c;
             }
         }
-        String uid=String.valueOf(cs);
+        String uid=String.valueOf(cs).trim();
         return uid;
     }
 }
