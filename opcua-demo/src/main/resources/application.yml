@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8089
 
 spring:
   application:
@@ -7,13 +7,13 @@ spring:
   datasource:
     name: test
     ##阿里云
-    url: jdbc:mysql://106.14.68.24:3333/gdtelassets?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
-    username: gdtelassets
-    password: gdtelassets@pensoon
-    ##线上
-#    url: jdbc:mysql://172.51.118.10:3306/gdtelassets?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+#    url: jdbc:mysql://106.14.68.24:3333/gdtelassets?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
 #    username: gdtelassets
-#    password: AProcTel246!#%@assets
+#    password: gdtelassets@pensoon
+    ##线上
+    url: jdbc:mysql://172.51.118.10:3306/gdtelassets?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+    username: gdtelassets
+    password: AProcTel246!#%@assets
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
     primary:

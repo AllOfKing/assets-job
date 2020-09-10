@@ -1,6 +1,7 @@
 package com.rookie.opcua.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.rookie.opcua.dto.RmAssetNewListDTO;
 import com.rookie.opcua.entity.RmAssetNew;
 import com.rookie.opcua.mapper.RmAssetNewMapper;
 import com.rookie.opcua.service.RmAssetNewService;
@@ -29,6 +30,9 @@ public class RmAssetNewServiceImpl extends ServiceImpl<RmAssetNewMapper, RmAsset
             rmAssetNew.setId("1");
             list.add(rmAssetNew);
         }
-        RmAssetNewMapper.insertRmAssetsList(list);
+        RmAssetNewListDTO rmAssetNewListDTO = new RmAssetNewListDTO();
+        rmAssetNewListDTO.setDataString("0903");
+        rmAssetNewListDTO.setList(list);
+        RmAssetNewMapper.insertRmAssetsList(rmAssetNewListDTO);
     }
 }

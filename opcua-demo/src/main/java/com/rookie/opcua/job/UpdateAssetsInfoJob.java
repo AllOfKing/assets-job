@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-//@Component
+@Component
 public class UpdateAssetsInfoJob implements ApplicationRunner {
     private String[] assetsTypes ={"0900","0901","0902","0903","0904","0905","0906","0907","0908","0909"
     ,"0910","0911","0912","0913","0914","0915","0916","0917","0918","0919","0920","0921","0981","0982"

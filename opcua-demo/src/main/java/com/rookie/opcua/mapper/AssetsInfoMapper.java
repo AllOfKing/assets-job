@@ -6,6 +6,7 @@ import com.rookie.opcua.dto.AssetsInfoCountMssDTO;
 import com.rookie.opcua.dto.AssetsInfoUpdateDTO;
 import com.rookie.opcua.dto.ReqularAndSpecialYearCountDTO;
 import com.rookie.opcua.entity.AssetsInfo;
+import com.rookie.opcua.entity.IntellectInventYearCount;
 import com.rookie.opcua.entity.ReqularAndSpecialYearCount;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 public interface AssetsInfoMapper extends BaseMapper<AssetsInfo> {
      List<AssetsInfo> findAssetsInfoTmepByComPanyCodeAndCardCode(@Param("companyCode") String companyCode, @Param("cardCode") String cardCode,@Param("city")String city);
 
-     List<AssetsInfo> findAssetsInfoByComPanyCodeAndCardCode(@Param("companyCode") String companyCode, @Param("cardCode") String cardCode,@Param("city")String city);
+     List<AssetsInfo> findAssetsInfoByComPanyCodeAndCardCode(@Param("cardCode") String cardCode,@Param("city")String city);
 
      List<Map<String,String>> findAssetsInfoRepeatCardCode(@Param("city") String city);
 
@@ -56,4 +57,8 @@ public interface AssetsInfoMapper extends BaseMapper<AssetsInfo> {
      //总资产
      List<ReqularAndSpecialYearCount> findHeadOfficeYearCount(@Param("year") String year);
 
+     //智能盘点情况统计表 常态化数据
+     List<IntellectInventYearCount> findIntellectInventYearCountForReqular(@Param("year") String year, @Param("regionId") String regionId);
+
+     List<IntellectInventYearCount> findIntellectInventYearCountForSpecial(@Param("regionId") String regionId, @Param("batchId") String batchId);
 }

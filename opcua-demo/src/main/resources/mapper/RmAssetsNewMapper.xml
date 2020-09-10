@@ -103,15 +103,15 @@
 
 
     <select id="findById" resultType="com.rookie.opcua.entity.RmAssetNew">
-        select * from RM_ASSET_NEW where id = #{id}
+        select * from RM_ASSET_NEW_0904 where id = #{id}
     </select>
 
     <select id="findRmAssetByCount" resultType="integer">
-        select count(*) from RM_ASSET_NEW
+        select count(*) from RM_ASSET_NEW_0904
     </select>
 
-    <insert id="insertRmAssetsList" parameterType="com.rookie.opcua.entity.RmAssetNew">
-        insert into RM_ASSET_NEW (`id`, `spec_id`, `creator_id`, `create_date`, `modifier_id`, `modify_date`, `version`, `sharding_id`, `bukrs`, `osszseq`, `assetscardcode`, `secondaryassetscardcode`, `isestimate`, `asset_catalogue`, `assetstype`, `description`, `workcosttype`, `namberunit`, `PNUMBER`, `manufacturer`, `standard`, `address`, `managedepartment`, `usedepartment`, `costcenter`, `supervisor`, `assetcustodian`, `assetkeeper`, `assetcustodian_account`, `assetkeeper_account`, `capitaldate`, `wbs`, `assetsrelegation`, `isclientasset`, `clientname`, `assetsnature`, `notes`, `abctype`, `parent_asset_id`, `addtionreason`, `accessory`, `pgyz`, `pgljzj`, `pgljjz`, `isheldforsale`, `isoverage`, `isforsrcap`, `isidle`, `isdevelopasset`, `areacode`, `countyoffices`, `branch`, `businessofficeid`, `btscode`, `team`, `isexpansion`, `isimpairment`, `depreciaerange1`, `depreciaecode1`, `depreciaerange2`, `depreciaecode2`, `usefullife1`, `period1`, `usefullife2`, `period2`, `costvalue`, `depreciation`, `impairmentsum`, `netvalue`, `positioncode`, `inactivedate`, `purchasedate`, `purchaseyear`, `firstbilling`, `isdisable`, `originalasset`, `developasset`, `isrent`, `islease`, `credentials`, `demolitionstatu`, `wbselement`, `usefulmonths`, `sourceassetno`, `isparent`, `durablelife`, `data_source_id`, `update_time`, `operation`, `status`) values
+    <insert id="insertRmAssetsList" parameterType="com.rookie.opcua.dto.RmAssetNewListDTO">
+        insert into RM_ASSET_NEW_${dataString} (`id`, `spec_id`, `creator_id`, `create_date`, `modifier_id`, `modify_date`, `version`, `sharding_id`, `bukrs`, `osszseq`, `assetscardcode`, `secondaryassetscardcode`, `isestimate`, `asset_catalogue`, `assetstype`, `description`, `workcosttype`, `namberunit`, `PNUMBER`, `manufacturer`, `standard`, `address`, `managedepartment`, `usedepartment`, `costcenter`, `supervisor`, `assetcustodian`, `assetkeeper`, `assetcustodian_account`, `assetkeeper_account`, `capitaldate`, `wbs`, `assetsrelegation`, `isclientasset`, `clientname`, `assetsnature`, `notes`, `abctype`, `parent_asset_id`, `addtionreason`, `accessory`, `pgyz`, `pgljzj`, `pgljjz`, `isheldforsale`, `isoverage`, `isforsrcap`, `isidle`, `isdevelopasset`, `areacode`, `countyoffices`, `branch`, `businessofficeid`, `btscode`, `team`, `isexpansion`, `isimpairment`, `depreciaerange1`, `depreciaecode1`, `depreciaerange2`, `depreciaecode2`, `usefullife1`, `period1`, `usefullife2`, `period2`, `costvalue`, `depreciation`, `impairmentsum`, `netvalue`, `positioncode`, `inactivedate`, `purchasedate`, `purchaseyear`, `firstbilling`, `isdisable`, `originalasset`, `developasset`, `isrent`, `islease`, `credentials`, `demolitionstatu`, `wbselement`, `usefulmonths`, `sourceassetno`, `isparent`, `durablelife`, `data_source_id`, `update_time`, `operation`, `status`) values
         <foreach collection="list" item="item" index="index" separator=",">
             (
             #{item.id},
@@ -208,10 +208,31 @@
 
     </insert>
     <update id="truncateRmAssets">
-        truncate table RM_ASSET_NEW
+        truncate table RM_ASSET_NEW_0904
     </update>
 
     <select id="findAssetNewByPage" resultType="com.rookie.opcua.entity.RmAssetNew">
-        select * from RM_ASSET_NEW limit #{start},#{size}
+        select * from RM_ASSET_NEW_0904 limit #{start},#{size}
+    </select>
+
+
+    <update id="createSubTable" parameterType="String">
+        create table if not exists RM_ASSET_NEW_${dateString} (like RM_ASSET_NEW)
+    </update>
+
+    <update id="deleteById" parameterType="String">
+        delete from RM_ASSET_NEW_0904 where id = #{id}
+    </update>
+
+
+    <select id="findAssetNewRepeat" resultType="String" parameterType="String">
+        select assetscardcode from RM_ASSET_NEW_${city} t
+        group by assetscardcode having count(*)>1
+    </select>
+
+    <select id="findBycardCode" parameterType="String" resultType="String">
+        select t.id as tId,o.uptime as oUptime from RM_ASSET_NEW_${city} t
+        left join rm_asset_log_${city} o on t.id = o.id
+        where assetscardcode = #{cardCode} order by o.uptime
     </select>
 </mapper>

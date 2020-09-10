@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.IntellectInventYearCountMapper">
+    <update id="truncate">
+        truncate table t_intellect_invent_year_count
+    </update>
+
+
+    <select id="findIntellectInventYearCountByCity" parameterType="String" resultType="com.rookie.opcua.entity.IntellectInventYearCount">
+        SELECT
+        company_code,
+        profit_group_code,
+        dept_id,
+        dept_name,
+        p_id,
+        region_id,
+        is_leaf,
+        invent_year,
+        SUM(wg_invent_count) as wg_invent_count,
+        ROUND(SUM(wg_worth_value)) as wg_worth_value,
+        SUM(xj_invent_count) as xj_invent_count,
+        ROUND(SUM(xj_worth_value)) as xj_worth_value,
+        SUM(app_invent_count) as app_invent_count,
+        ROUND(SUM(app_worth_value)) as app_worth_value,
+        SUM(app_no_scan_invent_count) as app_no_scan_invent_count,
+        ROUND(SUM(app_no_scan_worth_value)) as app_no_scan_worth_value,
+        SUM(pc_invent_count) as pc_invent_count,
+        ROUND(SUM(pc_worth_value)) as pc_worth_value,
+        SUM(total_count) as total_count,
+        SUM(invent_count) as invent_count
+        FROM t_intellect_invent_year_count
+        where p_id = #{city} AND invent_year = #{year} GROUP BY company_code
+    </select>
+
+    <select id="findIntellectInventYearCountAll" parameterType="String" resultType="com.rookie.opcua.entity.IntellectInventYearCount">
+        SELECT
+        company_code,
+        profit_group_code,
+        dept_id,
+        dept_name,
+        p_id,
+        region_id,
+        is_leaf,
+        invent_year,
+        SUM(wg_invent_count) as wg_invent_count,
+        ROUND(SUM(wg_worth_value)) as wg_worth_value,
+        SUM(xj_invent_count) as xj_invent_count,
+        SUM(xj_worth_value) as xj_worth_value,
+        SUM(app_invent_count) as app_invent_count,
+        ROUND(SUM(app_worth_value)) as app_worth_value,
+        SUM(app_no_scan_invent_count) as app_no_scan_invent_count,
+        ROUND(SUM(app_no_scan_worth_value)) as app_no_scan_worth_value,
+        SUM(pc_invent_count) as pc_invent_count,
+        ROUND(SUM(pc_worth_value)) as pc_worth_value,
+        SUM(total_count) as total_count,
+        SUM(invent_count) as invent_count
+        FROM t_intellect_invent_year_count
+        where invent_year = #{year} GROUP BY company_code
+    </select>
+
+    <insert id="insertIntellectInventYearCount" parameterType="com.rookie.opcua.entity.IntellectInventYearCount">
+        insert into `t_intellect_invent_year_count`
+        (`id`, `company_code`, `profit_group_code`, `dept_id`,
+        `dept_name`, `p_id`, `region_id`, `is_leaf`,
+        `invent_year`, `wg_invent_count`,
+        `wg_worth_value`, `xj_invent_count`, `xj_worth_value`,
+        `app_invent_count`, `app_worth_value`, `app_no_scan_invent_count`,
+        `app_no_scan_worth_value`, `pc_invent_count`, `pc_worth_value`,
+        `create_time`, `total_count`, `invent_count`)
+        values
+        (#{id},#{companyCode},#{profitGroupCode},#{deptId},#{deptName},
+        #{pId},#{regionId},#{isLeaf},#{inventYear},#{wgInventCount},
+        #{wgWorthValue},#{xjInventCount},#{xjWorthValue},#{appInventCount},
+        #{appWorthValue},#{appNoScanInventCount},#{appNoScanWorthValue},
+        #{pcInventCount},#{pcWorthValue},#{createTime},#{totalCount},#{inventCount});
+    </insert>
+
+
+    <insert id="insertIntellectInventYearCountList" parameterType="com.rookie.opcua.entity.IntellectInventYearCount">
+        insert into `t_intellect_invent_year_count`
+        (`id`, `company_code`, `profit_group_code`, `dept_id`,
+        `dept_name`, `p_id`, `region_id`, `is_leaf`,
+        `invent_year`, `wg_invent_count`,
+        `wg_worth_value`, `xj_invent_count`, `xj_worth_value`,
+        `app_invent_count`, `app_worth_value`, `app_no_scan_invent_count`,
+        `app_no_scan_worth_value`, `pc_invent_count`, `pc_worth_value`,
+        `create_time`, `total_count`, `invent_count`)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.id},
+            #{item.companyCode},
+            #{item.profitGroupCode},
+            #{item.deptId},
+            #{item.deptName},
+            #{item.pId},
+            #{item.regionId},
+            #{item.isLeaf},
+            #{item.inventYear},
+            #{item.wgInventCount},
+            #{item.wgWorthValue},
+            #{item.xjInventCount},
+            #{item.xjWorthValue},
+            #{item.appInventCount},
+            #{item.appWorthValue},
+            #{item.appNoScanInventCount},
+            #{item.appNoScanWorthValue},
+            #{item.pcInventCount},
+            #{item.pcWorthValue},
+            #{item.createTime},
+            #{item.totalCount},
+            #{item.inventCount})
+        </foreach>
+    </insert>
+</mapper>

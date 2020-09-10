@@ -5,5 +5,7 @@
     <select id="findDay" resultType="com.rookie.opcua.entity.Day">
         select * from day where id = '1'
     </select>
-
+    <update id="updateTime" parameterType="String">
+        update day set day = #{time}
+    </update>
 </mapper>

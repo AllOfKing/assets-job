@@ -5,4 +5,5 @@ import com.rookie.opcua.entity.Day;
 
 public interface DayMapper extends BaseMapper<Day> {
     Day findDay();
+    void updateTime(String time);
 }

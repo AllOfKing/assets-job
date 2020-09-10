@@ -12,12 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-@Component
+//@Component
 public class ReqularAndSpeciaYearCountJob implements ApplicationRunner{
     @Autowired
     private RegionMapper regionMapper;
@@ -27,6 +29,9 @@ public class ReqularAndSpeciaYearCountJob implements ApplicationRunner{
     private InventProjectMapper inventProjectMapper;
     @Autowired
     private ReqularAndSpecialYearCountMapper reqularAndSpecialYearCountMapper;
+
+    @Async
+    @Scheduled(cron = "0 0 1 * * ?")
     public void run(){
         log.info("进入常态化与专线数据获取任务");
         try{

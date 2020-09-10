@@ -11,11 +11,11 @@
     </select>
 
     <select id = "findAssetsInfoByComPanyCodeAndCardCode" parameterType="String" resultType="com.rookie.opcua.entity.AssetsInfo">
-        select * from t_assets_info_${city} where company_code = #{companyCode} and card_code = #{cardCode}
+        select * from t_assets_info_${city} where  card_code = #{cardCode} AND  assets_status = '1'
     </select>
 
     <select id="findAssetsInfoByCompanyCodeAndCardCodeOrderByCreateTime" parameterType="String" resultType="com.rookie.opcua.entity.AssetsInfo">
-        select * from t_assets_info_${city} where company_code = #{companyCode} and card_code = #{cardCode} order by create_time desc
+        select * from t_assets_info_${city} where company_code = #{companyCode} and card_code = #{cardCode}  order by create_time desc
     </select>
 
     <select id="findAssetsInfoRepeatCardCode" parameterType="String" resultType="Map">
@@ -854,26 +854,26 @@
 
 
     <select id="findReqularYearCount" parameterType="String" resultType="com.rookie.opcua.entity.ReqularAndSpecialYearCount">
-        select
-        YEAR(t.`create_time`) AS `invent_year`,
-        o.id AS deptId,
-        o.DEPARTMENT_NAME AS dept_name,
-        t.company_code AS company_code,
-        o.`PARENT_ID`  AS p_id,
-        IF(o.PARENT_ID IS NOT NULL,1,0) AS is_leaf,
-        sum(if(t.check_result = '04', 0, 1)) regular_total_count,
-        SUM(IF(t.check_status != '03',1,0)) AS regular_no_invent,
-        SUM(IF(t.check_status = '03', 1, 0)) AS regular_invent,
-        SUM(IF(t.worth_value IS NOT NULL AND t.check_status = '03', t.worth_value, 0)) AS regular_worth_value
-        FROM t_assets_info_${regionId} t
-        LEFT JOIN t_use_department ud ON t.use_dept_code = ud.use_code
-        LEFT JOIN sys_invent_organ o  ON o.id = ud.organ_id
-        WHERE t.assets_status = '1'
-        AND o.REGION_ID = #{regionId}
-        AND t.company_code IS NOT NULL
-        AND t.create_time IS NOT NULL
-        AND YEAR(t.create_time) = #{year}
-        GROUP BY o.id , t.company_code
+            select
+            YEAR(t.`create_time`) AS `invent_year`,
+            o.id AS deptId,
+            o.DEPARTMENT_NAME AS dept_name,
+            t.company_code AS company_code,
+            o.`PARENT_ID`  AS p_id,
+            IF(o.PARENT_ID IS NOT NULL,1,0) AS is_leaf,
+            sum(if(t.check_result = '04', 0, 1)) regular_total_count,
+            SUM(IF(t.check_status != '03',1,0)) AS regular_no_invent,
+            SUM(IF(t.check_status = '03', 1, 0)) AS regular_invent,
+            SUM(IF(t.worth_value IS NOT NULL AND t.check_status = '03', t.worth_value, 0)) AS regular_worth_value
+            FROM t_assets_info_${regionId} t
+            LEFT JOIN t_use_department ud ON t.use_dept_code = ud.use_code
+            LEFT JOIN sys_invent_organ o  ON o.id = ud.organ_id
+            WHERE t.assets_status = '1'
+            AND o.REGION_ID = #{regionId}
+            AND t.company_code IS NOT NULL
+            AND t.create_time IS NOT NULL
+            AND YEAR(t.create_time) = #{year}
+            GROUP BY o.id , t.company_code
     </select>
 
 
@@ -925,5 +925,70 @@
         ROUND(SUM(IF(special_worth_value,special_worth_value,0))) as  special_worth_value
         FROM t_reqular_and_special_year_count
         WHERE invent_year = #{year} GROUP BY company_code
+    </select>
+
+
+
+    <select id="findIntellectInventYearCountForReqular" parameterType="String" resultType="com.rookie.opcua.entity.IntellectInventYearCount">
+        SELECT
+        YEAR(t.`create_time`) AS `invent_year`,
+        o.id AS deptId,
+        o.DEPARTMENT_NAME AS dept_name,
+        t.company_code AS company_code,
+        o.`PARENT_ID`  AS p_id,
+        IF(o.PARENT_ID IS NOT NULL,1,0) AS is_leaf,
+        SUM(IF(t.assets_status = '1',1,0)) AS total_count,
+        SUM(IF(t.check_status = '03',1,0)) AS invent_count,
+        SUM(IF(tir.check_type = '2' AND (tir.check_result = '1' OR tir.check_result = '2'),1,0)) AS wg_invent_count,
+        ROUND(SUM(IF(tir.check_type = '2' AND (tir.check_result = '1' OR tir.check_result = '2'),t.worth_value,0))) AS wg_worth_value,
+        SUM(IF(tir.check_type = '1' AND (tir.check_result = '1' OR tir.check_result = '2'),1,0)) AS xj_invent_count,
+        ROUND(SUM(IF(tir.check_type = '1' AND (tir.check_result = '1' OR tir.check_result = '2'),t.worth_value,0))) AS xj_worth_value,
+        SUM(IF(t.check_status = '03' AND ((t.is_app = '1' AND t.scan_code_record = '1') OR t.is_app IN ('2','3')), 1, 0)) AS app_invent_count,
+        ROUND(SUM(IF(t.check_status = '03' AND ((t.is_app = '1' AND t.scan_code_record = '1') OR t.is_app IN ('2','3')), t.`worth_value`, 0))) AS app_worth_value,
+        SUM(IF(t.check_status = '03' AND t.is_app = '1' AND t.scan_code_record = '0', 1, 0)) AS app_no_scan_invent_count,
+        ROUND(SUM(IF(t.check_status = '03' AND t.is_app = '1' AND t.scan_code_record = '0', t.`worth_value`, 0))) AS app_no_scan_worth_value,
+        SUM(IF(t.check_status = '03' AND (t.is_app = '0' OR t.is_app IS NULL), 1, 0)) AS pc_invent_count,
+        ROUND(SUM(IF(t.check_status = '03' AND (t.is_app = '0' OR t.is_app IS NULL), t.worth_value, 0))) AS pc_worth_value
+        FROM sys_invent_organ o
+        LEFT JOIN t_use_department ud  ON o.id = ud.organ_id
+        LEFT JOIN t_assets_info_${regionId} t ON t.use_dept_code = ud.use_code
+        LEFT JOIN t_inspection_result_${regionId} tir  ON tir.card_code = t.card_code
+        WHERE t.assets_status = '1'
+        AND t.company_code IS NOT NULL
+        AND t.create_time IS NOT NULL
+        AND YEAR(t.create_time) = #{year}
+        AND o.REGION_ID = #{regionId}
+        GROUP BY o.id,t.`company_code`
+    </select>
+
+
+    <select id="findIntellectInventYearCountForSpecial" parameterType="String" resultType="com.rookie.opcua.entity.IntellectInventYearCount">
+        SELECT
+        YEAR(t.`create_time`) AS `invent_year`,
+        o.id AS deptId,
+        o.DEPARTMENT_NAME AS dept_name,
+        t.company_code AS company_code,
+        o.`PARENT_ID`  AS p_id,
+        IF(o.PARENT_ID IS NOT NULL,1,0) AS is_leaf,
+        SUM(IF(t.assets_status = '1',1,0)) AS total_count,
+        SUM(IF(t.check_status = '03',1,0)) AS invent_count,
+        SUM(IF(tir.check_type = '2' AND (tir.check_result = '1' OR tir.check_result = '2'),1,0)) AS wg_invent_count,
+        ROUND(SUM(IF(tir.check_type = '2' AND (tir.check_result = '1' OR tir.check_result = '2'),t.worth_value,0))) AS wg_worth_value,
+        SUM(IF(tir.check_type = '1' AND (tir.check_result = '1' OR tir.check_result = '2'),1,0)) AS xj_invent_count,
+        ROUND(SUM(IF(tir.check_type = '1' AND (tir.check_result = '1' OR tir.check_result = '2'),t.worth_value,0))) AS xj_worth_value,
+        SUM(IF(t.check_status = '03' AND ((t.is_app = '1' AND t.scan_code_record = '1') OR t.is_app IN ('2','3')), 1, 0)) AS app_invent_count,
+        ROUND(SUM(IF(t.check_status = '03' AND ((t.is_app = '1' AND t.scan_code_record = '1') OR t.is_app IN ('2','3')), t.`worth_value`, 0))) AS app_worth_value,
+        SUM(IF(t.check_status = '03' AND t.is_app = '1' AND t.scan_code_record = '0', 1, 0)) AS app_no_scan_invent_count,
+        ROUND(SUM(IF(t.check_status = '03' AND t.is_app = '1' AND t.scan_code_record = '0', t.`worth_value`, 0))) AS app_no_scan_worth_value,
+        SUM(IF(t.check_status = '03' AND (t.is_app = '0' OR t.is_app IS NULL), 1, 0)) AS pc_invent_count,
+        ROUND(SUM(IF(t.check_status = '03' AND (t.is_app = '0' OR t.is_app IS NULL), t.worth_value, 0))) AS pc_worth_value
+        FROM t_assets_info_${batchId} t
+        LEFT JOIN (SELECT * FROM `t_inspection_result_${regionId}` WHERE YEAR(check_time) = 2019) tir ON t.`card_code` = tir.`card_code`
+        LEFT JOIN t_use_department ud ON t.use_dept_code = ud.use_code
+        LEFT JOIN sys_invent_organ o  ON o.id = ud.organ_id
+        WHERE t.assets_status = '1'
+        AND o.REGION_ID = #{regionId}
+        AND t.company_code IS NOT NULL
+        GROUP BY o.id,t.company_code
     </select>
 </mapper>

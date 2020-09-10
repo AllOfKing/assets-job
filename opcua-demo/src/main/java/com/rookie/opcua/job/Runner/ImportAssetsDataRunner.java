@@ -77,7 +77,7 @@ public class ImportAssetsDataRunner  implements Runnable{
                 }
             }
             if(assetList.size()>0){
-                rmAssetNewMapper.insertRmAssetsList(assetList);
+//                rmAssetNewMapper.insertRmAssetsList(assetList);
             }
             begin.await();
         }catch (Exception  e){

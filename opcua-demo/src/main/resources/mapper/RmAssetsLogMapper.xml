@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rookie.opcua.mapper.RmAssetsLogMapper">
+    <insert id="insertList" parameterType="com.rookie.opcua.dto.RmAssetsLogListDTO">
+        insert into rm_asset_log_${dayString} (id,busi_Table_Name,
+        key_Column,operation,row_Key,uptime)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+        (
+            #{item.id},
+            #{item.busiTableName},
+            #{item.keyColumn},
+            #{item.operation},
+            #{item.rowKey},
+            #{item.uptime}
+            )
+        </foreach>
+    </insert>
+
+    <update id="createSubTable" parameterType="String">
+        create table if not exists rm_asset_log_${dayString} (like rm_asset_log)
+    </update>
+</mapper>

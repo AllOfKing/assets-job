@@ -23,7 +23,6 @@ public class RmAssetNewController {
 
     @GetMapping("/assets/findById")
     public RmAssetNew findById(String id){
-        System.out.println("進來了");
         return  RmAssetNewService.selectOne(id);
     }
 
