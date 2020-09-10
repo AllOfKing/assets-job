@@ -1,0 +1,15 @@
+opcua-demo/bin/target/asstes-job-1.0-SNAPSHOT.jar
+opcua-demo/bin/target/asstes-job-1.0-SNAPSHOT.jar.original
+opcua-demo/bin/target/classes/application.yml
+opcua-demo/bin/target/classes/platform-site.xml
+opcua-demo/bin/target/classes/db/node_structure.sql
+opcua-demo/bin/target/classes/mapper/NodeStructureMapper.xml
+opcua-demo/bin/target/classes/mapper/RmAssetsNewMapper.xml
+opcua-demo/bin/target/classes/templates/index.html
+opcua-demo/bin/target/maven-archiver/pom.properties
+opcua-demo/bin/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+opcua-demo/bin/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+opcua-demo/logs/spring.log
+opcua-demo/logs/spring.log.2020-08-24.0.gz
+opcua-demo/logs/spring.log.2020-08-25.0.gz
+opcua-demo/logs/spring.log.2020-08-27.0.gz
