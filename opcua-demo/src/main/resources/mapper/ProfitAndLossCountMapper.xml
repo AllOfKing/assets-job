@@ -50,6 +50,7 @@
             AND dep.organ_id IS NOT NULL
             AND dep.organ_id != ''
             AND assets_create_time IS NOT NULL
+            AND check_result = '03'
         GROUP BY
             ass.company_code,
             organ_id,
@@ -87,6 +88,7 @@
             AND dep.organ_id IS NOT NULL
             AND dep.organ_id != ''
             AND assets_create_time IS NOT NULL
+            AND check_result = '03'
             AND year(assets_create_time) = #{year}
         GROUP BY
             ass.company_code,

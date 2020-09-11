@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +73,7 @@ public class ProfitAndLossCountServiceImpl extends ServiceImpl<ProfitAndLossCoun
                     continue;
                 }
             }
-            chirdDepProfit(profitAndLossCountList, regionInventOrganList, "",year);
+            chirdDepProfit(profitAndLossCountList, inventOrganList, "",year);
 
         }
 
@@ -115,15 +117,16 @@ public class ProfitAndLossCountServiceImpl extends ServiceImpl<ProfitAndLossCoun
     public void chirdDepProfit(List<ProfitAndLossCount> profitAndLossCountList, List<InventOrgan> regionInventOrganList, String batchId,String year) {
         //聚合子部门的数据
         for (ProfitAndLossCount profitAndLossCount : profitAndLossCountList) {
-            //设置id
+//            //设置id
             profitAndLossCount.setId(UUIDUtils.getUUID());
             profitAndLossCount.setBatchId(StringUtils.isEmpty(batchId) ? "0" : batchId);
-            //格式化数据保留两位小数
-            profitAndLossCount.setLoseMoneyNetWorth(new BigDecimal(profitAndLossCount.getPreAgeNetWorth()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//            //格式化数据保留两位小数
+            profitAndLossCount.setLoseMoneyNetWorth(new BigDecimal(profitAndLossCount.getLoseMoneyNetWorth()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
             profitAndLossCount.setPreAgeNetWorth( new BigDecimal(profitAndLossCount.getPreAgeNetWorth()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
             profitAndLossCount.setScrappedWorth( new BigDecimal(profitAndLossCount.getScrappedWorth()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-
-            //子部门集合
+//
+//            //子部门集合
+            childList = new ArrayList<>();
             List<InventOrgan> chirds = treeMenuList(regionInventOrganList, profitAndLossCount.getDeptId());
             //是否有子部门
             if (CollectionUtils.isNotEmpty(chirds) && chirds.size() > 1) {
@@ -131,31 +134,33 @@ public class ProfitAndLossCountServiceImpl extends ServiceImpl<ProfitAndLossCoun
                 Integer loseMoneyCount = 0;
                 Integer preAgeCount = 0;
                 Integer scrappedCount = 0;
-                Double loseMoneyNetWorth = 0.0;
-                Double preAgeNetWorth = 0.0;
-                Double scrappedWorth = 0.0;
-                for (InventOrgan organ : chirds) {
-                    for (ProfitAndLossCount pro : profitAndLossCountList) {
-                        if (pro.getDeptId().equals(organ.getId())) {
+                Double loseMoneyNetWorth = profitAndLossCount.getLoseMoneyNetWorth();
+                Double preAgeNetWorth = profitAndLossCount.getPreAgeNetWorth();
+                Double scrappedWorth = profitAndLossCount.getScrappedWorth();
+                for (ProfitAndLossCount pro : profitAndLossCountList) {
+                    for (InventOrgan organ : chirds) {
+                        if (pro.getDeptId().equals(organ.getId()) && pro.getCompanyCode().equals(profitAndLossCount.getCompanyCode())) {
                             loseMoneyCount += pro.getLoseMoneyCount();
                             preAgeCount += pro.getPreAgeCount();
                             scrappedCount += pro.getScrappedCount();
                             loseMoneyNetWorth += pro.getLoseMoneyNetWorth();
                             preAgeNetWorth += pro.getPreAgeNetWorth();
                             scrappedWorth += pro.getScrappedWorth();
+                            break;
                         }
                     }
                 }
                 profitAndLossCount.setLoseMoneyCount(loseMoneyCount);
                 profitAndLossCount.setPreAgeCount(preAgeCount);
                 profitAndLossCount.setScrappedCount(scrappedCount);
-                profitAndLossCount.setLoseMoneyNetWorth(new BigDecimal(loseMoneyNetWorth).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-                profitAndLossCount.setPreAgeNetWorth( new BigDecimal(preAgeNetWorth).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-                profitAndLossCount.setScrappedWorth( new BigDecimal(scrappedWorth).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                profitAndLossCount.setLoseMoneyNetWorth(format(loseMoneyNetWorth));
+                profitAndLossCount.setPreAgeNetWorth(format(preAgeNetWorth));
+                profitAndLossCount.setScrappedWorth(format(scrappedWorth));
             }
+
         }
         //删除数据
-        if (!StringUtils.isEmpty(year) && CollectionUtils.isNotEmpty(profitAndLossCountList)) {
+        if (CollectionUtils.isNotEmpty(profitAndLossCountList)) {
             profitAndLossCountMapper.deleteBatch(profitAndLossCountList);
         }
 
@@ -172,7 +177,7 @@ public class ProfitAndLossCountServiceImpl extends ServiceImpl<ProfitAndLossCoun
     public List<InventOrgan> treeMenuList(List<InventOrgan> menuList, String pid){
         for(InventOrgan mu: menuList){
             //遍历出父id等于参数的id，add进子节点集合
-            if (null == mu.getId()) {
+            if (null == mu.getParentId() ) {
                 continue;
             }
             if(mu.getParentId().equals(pid)){
@@ -182,5 +187,12 @@ public class ProfitAndLossCountServiceImpl extends ServiceImpl<ProfitAndLossCoun
             }
         }
         return childList;
+    }
+
+    public Double format(double value) {
+
+        DecimalFormat df = new DecimalFormat("0.00");
+        df.setRoundingMode(RoundingMode.HALF_UP);
+        return Double.parseDouble(df.format(value));
     }
 }
