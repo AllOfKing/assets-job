@@ -52,7 +52,7 @@ public class IntellectInventYearCountJob implements ApplicationRunner {
                 //根据地市编号去查询分表
                 //根据年度区分
                 //获取常态化
-//                List<IntellectInventYearCount> regularList = assetsInfoMapper.findIntellectInventYearCountForReqular(year+"",region.getId());
+                List<IntellectInventYearCount> regularList = assetsInfoMapper.findIntellectInventYearCountForReqular(year+"",region.getId());
 //                List<IntellectInventYearCount> list = new ArrayList<IntellectInventYearCount>();
 //                for(IntellectInventYearCount intellectInventYearCount:regularList){
 //                    intellectInventYearCount.setId(new ObjectId().toHexString());

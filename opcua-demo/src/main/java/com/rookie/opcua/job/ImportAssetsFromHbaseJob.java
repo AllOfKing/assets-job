@@ -935,7 +935,7 @@ public class ImportAssetsFromHbaseJob implements  ApplicationRunner{
                                                 || "0".equals(ra.getStatus())) {
                                             assetsInfoMapper.updateAssetsStatusAndLastUpdateTime(ai.getCompanyCode(),ai.getCardCode(),ai.getCity());
                                         }else{
-                                            List<AssetsInfo> aiList =  assetsInfoMapper.findAssetsInfoByComPanyCodeAndCardCode(ai.getCardCode(),ai.getCity());
+                                            List<AssetsInfo> aiList =  assetsInfoMapper.findAssetsInfoByComPanyCodeAndCardCode(ai.getCompanyCode(),ai.getCardCode(),ai.getCity());
                                             ai.setAssetsStatus("0".equals(ra.getStatus()) ? "0":"1");
                                             if (aiList != null && aiList.size() > 0) {
                                                 AssetsInfo aiOld = aiList.get(0);
@@ -965,7 +965,6 @@ public class ImportAssetsFromHbaseJob implements  ApplicationRunner{
                                                     ai.setRelationIdMark("1");
                                                 }
                                                 ai.setCity(city);
-                                                ai.setId(new ObjectId().toHexString());
                                                 assetsInfoMapper.insertAssetsInfo(ai);
                                             }
                                         }
