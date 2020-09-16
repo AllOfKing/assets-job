@@ -61,7 +61,7 @@ public class ProfitAndLossCount  {
      * 是否存在子部门
      */
     @TableField("is_leaf")
-    private String isLeaf;
+    private Boolean isLeaf;
     /**
      * 盘点年度
      */

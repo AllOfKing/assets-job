@@ -13,15 +13,14 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 蒋小金
- *
  */
 @Service
 @AllArgsConstructor
@@ -37,6 +36,8 @@ public class ProfitAndLossCountServiceImpl extends ServiceImpl<ProfitAndLossCoun
 
     private List<InventOrgan> childList = new ArrayList<>();
 
+    private List<ProfitAndLossCount> profitChildList = new ArrayList<>();
+
     /**
      * 统计常态化盈亏
      */
@@ -49,7 +50,7 @@ public class ProfitAndLossCountServiceImpl extends ServiceImpl<ProfitAndLossCoun
         List<InventOrgan> inventOrganList = inventOrganService.list(wrapper);
         //筛选地市
         List<InventOrgan> regionInventOrganList = new ArrayList<>();
-        inventOrganList.forEach(data ->{
+        inventOrganList.forEach(data -> {
             if (null != data.getParentId()) {
                 if (data.getParentId().equals("09")) {
                     regionInventOrganList.add(data);
@@ -66,15 +67,14 @@ public class ProfitAndLossCountServiceImpl extends ServiceImpl<ProfitAndLossCoun
                     if (StringUtils.isEmpty(year)) {
                         profitAndLossCounts = profitAndLossCountMapper.selectLossCount(inventOrgan.getId());
                     } else {
-                        profitAndLossCounts = profitAndLossCountMapper.selectLossCountByYear(inventOrgan.getId(),year);
+                        profitAndLossCounts = profitAndLossCountMapper.selectLossCountByYear(inventOrgan.getId(), year);
                     }
                     profitAndLossCountList.addAll(profitAndLossCounts);
                 } catch (Exception e) {
                     continue;
                 }
             }
-            chirdDepProfit(profitAndLossCountList, inventOrganList, "",year);
-
+            chirdDepProfit(profitAndLossCountList, inventOrganList, "", year);
         }
 
     }
@@ -111,29 +111,58 @@ public class ProfitAndLossCountServiceImpl extends ServiceImpl<ProfitAndLossCoun
 
     /**
      * 聚合子部门数据
+     *
      * @param profitAndLossCountList
      * @param regionInventOrganList
      */
-    public void chirdDepProfit(List<ProfitAndLossCount> profitAndLossCountList, List<InventOrgan> regionInventOrganList, String batchId,String year) {
+    public void chirdDepProfit(List<ProfitAndLossCount> profitAndLossCountList, List<InventOrgan> regionInventOrganList, String batchId, String year) {
+        List<ProfitAndLossCount> depProfitAndLossCount = new ArrayList<>();
+//        for (InventOrgan inventOrgan : regionInventOrganList) {
+//            List<InventOrgan> inventOrgans = new ArrayList<>();
+//            //获取子节点
+//            treeOrganList(regionInventOrganList,inventOrgans,inventOrgan.getId());
+//            //查看子节点是否在统计数据中
+//            ProfitAndLossCount profitAndLossCount = new ProfitAndLossCount();
+//            profitAndLossCount.setId(UUIDUtils.getUUID());
+//            Integer loseMoneyCount = 0;
+//            Integer preAgeCount = 0;
+//            Integer scrappedCount = 0;
+//            Double loseMoneyNetWorth = 0d;
+//            Double preAgeNetWorth = 0d;
+//            Double scrappedWorth = 0d;
+//
+//            for (InventOrgan organ : inventOrgans) {
+//                for (ProfitAndLossCount profitAndLossCount : profitAndLossCountList) {
+//                    if (organ.getId().equals(profitAndLossCount.getDeptId())) {
+//
+//                    }
+//                }
+//            }
+//
+//            if (CollectionUtils.isNotEmpty(inventOrgans)) {
+//                System.out.println("ffff");
+//            }
+//        }
+
         //聚合子部门的数据
         for (ProfitAndLossCount profitAndLossCount : profitAndLossCountList) {
-//            //设置id
+            //设置id
             profitAndLossCount.setId(UUIDUtils.getUUID());
             profitAndLossCount.setBatchId(StringUtils.isEmpty(batchId) ? "0" : batchId);
-//            //格式化数据保留两位小数
-            profitAndLossCount.setLoseMoneyNetWorth(new BigDecimal(profitAndLossCount.getLoseMoneyNetWorth()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-            profitAndLossCount.setPreAgeNetWorth( new BigDecimal(profitAndLossCount.getPreAgeNetWorth()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-            profitAndLossCount.setScrappedWorth( new BigDecimal(profitAndLossCount.getScrappedWorth()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-//
-//            //子部门集合
-            childList = new ArrayList<>();
-            List<InventOrgan> chirds = treeMenuList(regionInventOrganList, profitAndLossCount.getDeptId());
+            //格式化数据保留两位小数
+            profitAndLossCount.setLoseMoneyNetWorth(format(profitAndLossCount.getLoseMoneyNetWorth()));
+            profitAndLossCount.setPreAgeNetWorth(format(profitAndLossCount.getPreAgeNetWorth()));
+            profitAndLossCount.setScrappedWorth(format(profitAndLossCount.getScrappedWorth()));
+
+            //子部门集合
+            List<InventOrgan> chirds = new ArrayList<>();
+            treeOrganList(regionInventOrganList,chirds, profitAndLossCount.getDeptId());
             //是否有子部门
             if (CollectionUtils.isNotEmpty(chirds) && chirds.size() > 1) {
-
-                Integer loseMoneyCount = 0;
-                Integer preAgeCount = 0;
-                Integer scrappedCount = 0;
+//
+                Integer loseMoneyCount = profitAndLossCount.getLoseMoneyCount();
+                Integer preAgeCount = profitAndLossCount.getPreAgeCount();
+                Integer scrappedCount = profitAndLossCount.getScrappedCount();
                 Double loseMoneyNetWorth = profitAndLossCount.getLoseMoneyNetWorth();
                 Double preAgeNetWorth = profitAndLossCount.getPreAgeNetWorth();
                 Double scrappedWorth = profitAndLossCount.getScrappedWorth();
@@ -159,6 +188,7 @@ public class ProfitAndLossCountServiceImpl extends ServiceImpl<ProfitAndLossCoun
             }
 
         }
+
         //删除数据
         if (CollectionUtils.isNotEmpty(profitAndLossCountList)) {
             profitAndLossCountMapper.deleteBatch(profitAndLossCountList);
@@ -170,23 +200,62 @@ public class ProfitAndLossCountServiceImpl extends ServiceImpl<ProfitAndLossCoun
 
     /**
      * 遍历子部门
+     *
+     * @param allList
+     * @param pid
+     * @return
+     */
+    public void treeOrganList(List<InventOrgan> allList,List<InventOrgan> returnList, String pid) {
+        for (InventOrgan mu : allList) {
+            //遍历出父id等于参数的id，add进子节点集合
+            if (null == mu.getParentId()) {
+                continue;
+            }
+            if (mu.getParentId().equals(pid)) {
+                //递归遍历下一级 deptId
+                treeOrganList(allList, returnList,mu.getId());
+                returnList.add(mu);
+            }
+        }
+    }
+
+    /**
+     * 获取父id
+     * @param id
+     * @param allOrganList
+     * @param organList
+     */
+    public void addParentOrgan(String id, List<InventOrgan> allOrganList, List<InventOrgan> organList) {
+        for (InventOrgan organ : allOrganList) {
+            if (id.equals(organ.getId())) {
+                organList.add(organ);
+                if (StringUtils.isEmpty(organ.getParentId())) {
+                    return;
+                }
+                String pId = organ.getParentId();
+                addParentOrgan(pId, allOrganList, organList);
+            }
+        }
+    }
+
+    /**
      * @param menuList
      * @param pid
      * @return
      */
-    public List<InventOrgan> treeMenuList(List<InventOrgan> menuList, String pid){
-        for(InventOrgan mu: menuList){
+    public List<ProfitAndLossCount> treeProfitList(List<ProfitAndLossCount> menuList, String pid) {
+        for (ProfitAndLossCount mu : menuList) {
             //遍历出父id等于参数的id，add进子节点集合
-            if (null == mu.getParentId() ) {
+            if (null == mu.getPId()) {
                 continue;
             }
-            if(mu.getParentId().equals(pid)){
+            if (mu.getPId().equals(pid)) {
                 //递归遍历下一级 deptId
-                treeMenuList(menuList,mu.getId());
-                childList.add(mu);
+                treeProfitList(menuList, mu.getDeptId());
+                profitChildList.add(mu);
             }
         }
-        return childList;
+        return profitChildList;
     }
 
     public Double format(double value) {
