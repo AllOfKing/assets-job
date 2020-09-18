@@ -1,12 +1,7 @@
 package com.rookie.opcua.job;
 
-import com.rookie.opcua.entity.InventProject;
-import com.rookie.opcua.entity.Region;
-import com.rookie.opcua.entity.ReqularAndSpecialYearCount;
-import com.rookie.opcua.mapper.AssetsInfoMapper;
-import com.rookie.opcua.mapper.InventProjectMapper;
-import com.rookie.opcua.mapper.RegionMapper;
-import com.rookie.opcua.mapper.ReqularAndSpecialYearCountMapper;
+import com.rookie.opcua.entity.*;
+import com.rookie.opcua.mapper.*;
 import com.rookie.opcua.utils.ObjectId;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +10,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,6 +26,8 @@ public class ReqularAndSpeciaYearCountJob implements ApplicationRunner{
     private InventProjectMapper inventProjectMapper;
     @Autowired
     private ReqularAndSpecialYearCountMapper reqularAndSpecialYearCountMapper;
+    @Autowired
+    private InventOrganMapper inventOrganMapper;
 
     @Async
     @Scheduled(cron = "0 0 1 * * ?")
@@ -52,6 +51,8 @@ public class ReqularAndSpeciaYearCountJob implements ApplicationRunner{
                     //根据年度区分
                     //获取常态化
                     List<ReqularAndSpecialYearCount> reqularYearCountList = assetsInfoMapper.findReqularYearCount(year+"",region.getId());
+
+
                     //获取专项
                     //根据年份和地市获取批次id
                     List<ReqularAndSpecialYearCount> specialYearCountList = new ArrayList<ReqularAndSpecialYearCount>();

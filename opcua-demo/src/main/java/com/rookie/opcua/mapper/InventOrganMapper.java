@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface InventOrganMapper extends BaseMapper<InventOrgan> {
     List<InventOrgan> findInventOrganListByReginId(@Param("regionId") String regionId);
+
+    List<InventOrgan> findInventOrganRegionByParentId(@Param("organId") String organId);
 }

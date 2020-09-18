@@ -1,102 +1,314 @@
 package com.rookie.opcua.job;
 
 import com.rookie.opcua.dto.ProfitCenterDTO;
+import com.rookie.opcua.dto.RmAssetNewListDTO;
+import com.rookie.opcua.dto.RmAssetsLogListDTO;
 import com.rookie.opcua.entity.*;
 import com.rookie.opcua.mapper.*;
 import com.rookie.opcua.utils.ObjectId;
+import com.rookie.opcua.utils.hbase.job.HBasePool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.*;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
+import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Slf4j
 //@Component
-public class TestJob{
-//public class TestJob implements Runnable {
+public class ImportAssetsFromHbaseJob2{
+//public class ImportAssetsFromHbaseJob2 implements  ApplicationRunner{
 //
+//    private static Connection hbaseConnection;
 //
-//    private int startIndex;
-//
-//    private List<CompanyCode> cpList ;//公司代码
-//    private List<AssetZCLB> amList;//资产配别
-//    private List<ZYCBLB> zyList;//作业成本类别
-//    private List<JLDW> jldwList ;//计量单位
-//    private List<MatterDeptment> swglbmList;// 实物管理部门
-//    private List<UseDeptment> sybmList ; // 使用部门
-//    private List<AssetsAsc> aaList ;// 资产归属
-//    private List<AssetsNature> anList ; // 资产性质
-//    private List<AddReason> addRList ;// 增加原因
-//    private List<BoroughCompany> bcList ;// 区县分公司
-//    private List<Branch> bList ; // 支局清单
-//    private List<BusinessHall> bhList ; // 营业厅
-//    private List<Station> stList ; //基站
-//    private List<Team> tList ; // 班组
-//    private List<DepreciaeRange> drList ; // 折旧范围
-//    private List<DepreciaeCode> dcList ; // 折旧码
-//    private List<PositionCode> pcList ;  // 科目定位码
-//    private List<HBCostCenter> cbzxList ; // 成本中心
-//    private List<ProfitCenterDTO> pList ;
-//    private RmAssetNewMapper rmAssetNewMapper;
+//    @Autowired
+//    private  RmAssetNewMapper rmAssetNewMapper;
+//    @Autowired
 //    private DayMapper dayMapper;
+//    @Autowired
+//    private CompanyCodeMapper companyCodeMapper;
+//    @Autowired
+//    private AssetZCLBMapper assetZCLBMapper;
+//    @Autowired
+//    private ZYCBLBMapper zycblbMapper;
+//    @Autowired
+//    private JLDWMapper jldwMapper;
+//    @Autowired
+//    private MatterDeptmentMapper matterDeptmentMapper;
+//    @Autowired
+//    private UseDeptMentMapper useDeptMentMapper;
+//    @Autowired
+//    private AssetsAscMapper assetsAscMapper;
+//    @Autowired
+//    private AssetsNatureMapper assetsNatureMapper;
+//    @Autowired
+//    private AddReasonMapper addReasonMapper;
+//    @Autowired
+//    private BoroughCompanyMapper boroughCompanyMapper;
+//    @Autowired
+//    private BranchMapper branchMapper;
+//    @Autowired
+//    private BusinessHallMapper businessHallMapper;
+//    @Autowired
+//    private StationMapper stationMapper;
+//    @Autowired
+//    private TeamMapper teamMapper;
+//    @Autowired
+//    private DepreciaeRangeMapper depreciaeRangeMapper;
+//    @Autowired
+//    private DepreciaeCodeMapper depreciaeCodeMapper;
+//    @Autowired
+//    private PositionCodeMapper positionCodeMapper;
+//    @Autowired
+//    private HBCostCenterMapper hbCostCenterMapper;
+//    @Autowired
+//    private ProfitCenterMapper profitCenterMapper;
+//    @Autowired
 //    private AssetsInfoMapper assetsInfoMapper;
+//    @Autowired
 //    private HbaseAssetNewLogMapper hbaseAssetNewLogMapper;
+//    @Autowired
 //    private RmAssetsLogMapper rmAssetsLogMapper;
-//    private HbaseRunTImeLogMapper hbaseRunTImeLogMapper;
 //
+////    @Async
+////    @Scheduled(cron = "0 0 1 * * ?")
+//    public void importAssetsFromHabse() {
+//        log.info("进入hbase数据获取");
+//            //操作记录
+//        boolean bln = true;
+//        while (true){
+//            HbaseAssetNewLog hbaseAssetNewLog = new HbaseAssetNewLog();
+//            try {
+//                //清空表
+////                rmAssetNewMapper.truncateRmAssets();
+//                log.info("定時任務跑起來了呀");
+//                //从hbase上拉取RM_ASSET_44_LOG RM_ASSET_44 这两张表的数据
+//                HBasePool pool = HBasePool.getInstance();
+//                hbaseConnection = pool.getConnection();
+//                String tableLogName = "RM_ASSET_44_LOG";
+//                //获取表对象
+//                HTable logTable = getTable(tableLogName);
+//                //初始化Scan实例
+//                Scan scan = new Scan();
+//                //根据设置的时间去获取数据
+//                Day day = dayMapper.findDay();
+//                String startDay =  day.getDay();
+////                log.info("获取的时间是+++++++"+day.getDay());
+//                //设值过滤条件
+//                FilterList filterList=new FilterList();
+//                    SingleColumnValueFilter startFilter = new SingleColumnValueFilter(
+//                        Bytes.toBytes("LOG"),
+//                        Bytes.toBytes("uptime"),
+//                        CompareFilter.CompareOp.GREATER_OR_EQUAL, Bytes.toBytes(getCountStartTime(-11))
+////                            CompareFilter.CompareOp.GREATER_OR_EQUAL, Bytes.toBytes("2020-09-04 00:00:00.000000")
 //
-//    public TestJob(int startIndex,List<CompanyCode> cpList,List<AssetZCLB> amList,List<ZYCBLB> zyList,List<JLDW> jldwList,
-//    List<MatterDeptment> swglbmList, List<UseDeptment> sybmList,List<AssetsAsc> aaList,List<AssetsNature> anList,
-//                   List<AddReason> addRList,List<BoroughCompany> bcList,List<Branch> bList,List<BusinessHall> bhList,
-//                   List<Station> stList,List<Team> tList,List<DepreciaeRange> drList,List<DepreciaeCode> dcList,
-//                   List<PositionCode> pcList,List<HBCostCenter> cbzxList,List<ProfitCenterDTO> pList,RmAssetNewMapper rmAssetNewMapper,
-//                   DayMapper dayMapper,AssetsInfoMapper assetsInfoMapper,HbaseAssetNewLogMapper hbaseAssetNewLogMapper,
-//                   RmAssetsLogMapper rmAssetsLogMapper,HbaseRunTImeLogMapper hbaseRunTImeLogMapper){
-//        this.startIndex = startIndex;
-//        this.cpList = cpList;
-//        this.amList = amList;
-//        this.zyList = zyList;
-//        this.jldwList = jldwList;
-//        this.swglbmList = swglbmList;
-//        this.sybmList = sybmList;
-//        this.aaList = aaList;
-//        this.anList = anList;
-//        this.addRList = addRList;
-//        this.bcList = bcList;
-//        this.bList = bList;
-//        this.bhList = bhList;
-//        this.stList = stList;
-//        this.tList = tList;
-//        this.drList = drList;
-//        this.dcList = dcList;
-//        this.pcList = pcList;
-//        this.cbzxList = cbzxList;
-//        this.pList = pList;
-//        this.rmAssetNewMapper = rmAssetNewMapper;
-//        this.dayMapper = dayMapper;
-//        this.assetsInfoMapper = assetsInfoMapper;
-//        this.hbaseAssetNewLogMapper = hbaseAssetNewLogMapper;
-//        this.rmAssetsLogMapper = rmAssetsLogMapper;
-//        this.hbaseRunTImeLogMapper = hbaseRunTImeLogMapper;
+//                    );
+//                filterList.addFilter(startFilter);
+//                // 计算结束时间 开始时间后的一个小时
+//                Filter endFilter = new SingleColumnValueFilter(
+//                        Bytes.toBytes("LOG"),
+//                        Bytes.toBytes("uptime"),
+//                        CompareFilter.CompareOp.LESS,
+//                        Bytes.toBytes(getCountEndTime(-11))
+////                        Bytes.toBytes("2020-09-04 12:00:00.000000")
+//                );
+////                SingleColumnValueFilter filter1 = new SingleColumnValueFilter(
+////
+////                        Bytes.toBytes("LOG"),
+////
+////                        Bytes.toBytes("operation"),
+////
+////                        CompareFilter.CompareOp.EQUAL,
+////
+//////                        new SubstringComparator(getCountTime(Integer.parseInt(day.getDay())))
+////                        new SubstringComparator("I")
+////
+////                );
+//                filterList.addFilter(endFilter);
+//                //将过滤条件加入进去
+//                scan.setFilter(filterList);
+//                //返回结果
+//                ResultScanner rs = logTable.getScanner(scan);
+//                int n =0;
+//                //创建一个线程池，最多同时跑10个线程
+//        //            ExecutorService executorService = Executors.newFixedThreadPool(10);
+//                for (Result[] results = rs.next(1000); results != null && results.length>0;
+//                     results = rs.next(1000)) {
+//                    n += results.length;
+//                    HTable table = (HTable) hbaseConnection.getTable(TableName.valueOf("RM_ASSET_44"));
+//                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+//                    List<RmAssetNew> assetList = new ArrayList<RmAssetNew>();
+//
+//                    List<RmAssetsLog> logList = new ArrayList<>();
+//                    for (Result result : results) {
+//                        String rowKey="";
+//                        String operation = "";
+//                        String uptime = "";
+//                        String busiTableName = "";
+//                        String keyColumn = "";
+//                        String id = "";
+//                        RmAssetsLog rmAssetsLog = new RmAssetsLog();
+//                        for (Cell cell : result.rawCells()) {
+//                            String logName = new String(CellUtil.cloneQualifier(cell));//列名
+//                            String logValue = new String(CellUtil.cloneValue(cell));//列值
+//                            if ("rowKey".equals(logName)) {
+//                                rowKey=logValue;
+//                            } else if ("operation".equals(logName)) {
+//                                operation=logValue;
+//                            } else if ("uptime".equals(logName)) {
+//                                uptime = logValue;
+//                            }else if("busiTableName".equals(logName)){
+//                                busiTableName = logValue;
+//                            }else if("keyColumn".equals(logName)){
+//                                keyColumn = logValue;
+//                            }else if("id".equals(logName)){
+//                                id = logValue;
+//                            }
+//
+//                            if(StringUtils.isBlank(id)){
+//                                id = new ObjectId().toHexString();
+//                            }
+//                            rmAssetsLog.setId(id);
+//                            rmAssetsLog.setRowKey(rowKey);
+//                            rmAssetsLog.setOperation(operation);
+//                            rmAssetsLog.setUptime(uptime);
+//                            rmAssetsLog.setBusiTableName(busiTableName);
+//                            rmAssetsLog.setKeyColumn(keyColumn);
+//                        }
+//                        logList.add(rmAssetsLog);
+//                        if (StringUtils.isNotBlank(rowKey)) {
+//                            Get get = new Get(Bytes.toBytes(rowKey));
+//                            Result ar = table.get(get);
+//                            Cell[] arCell = ar.rawCells();
+//                            RmAssetNew rmNew = new RmAssetNew();
+//                            for (Cell arc : arCell) {
+//                                String aName = new String(CellUtil.cloneQualifier(arc));
+//                                String aValue = new String(CellUtil.cloneValue(arc));
+//                                setValue(aName,aValue,rmNew);
+//                            }
+//                            Date parse = simpleDateFormat.parse(uptime);
+//                            hbaseAssetNewLog.setPullTime(parse);
+//                            rmNew.setUpdateTime(parse);
+//                            rmNew.setOperation(operation);
+//                            if (StringUtils.isNotBlank(rmNew.getId())) {
+//                                assetList.add(rmNew);
+//                            }
+//                        }
+//                    }
+//                    if(logList.size()>0){
+//                        RmAssetsLogListDTO rmAssetsLogListDTO = new RmAssetsLogListDTO();
+//                        rmAssetsLogListDTO.setList(logList);
+//                        rmAssetsLogMapper.insertList(rmAssetsLogListDTO);
+//                    }
+//                    if(assetList.size()>0){
+//                        RmAssetNewListDTO RmAssetNewListDTO = new RmAssetNewListDTO();
+//                        RmAssetNewListDTO.setList(assetList);
+//                        rmAssetNewMapper.insertRmAssetsList(RmAssetNewListDTO);
+//                    }
+//                }
+//                log.info("数量"+n);
+//                hbaseAssetNewLog.setPullCount(n+"");
+//                hbaseAssetNewLog.setCreateTime(new Date());
+//                hbaseAssetNewLog.setId(new ObjectId().toHexString());
+//                hbaseAssetNewLogMapper.insertHbaseLog(hbaseAssetNewLog);
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
+//            log.info("接口数据获取完毕");
+//            //获取完所有数据之后，开始数据转换
+////            processingData();
+//        }
 //    }
 //
-//    @Override
-//    public void run() {
-//        processingData();
+//
+//
+////                    int count = 1000; //每条线程去处理1000条数据
+////                    int arrayLength = results.length; //数据集合大小
+////                    log.info("arrayLength的大小"+arrayLength);
+////                    int runSize = arrayLength/1000;
+////                    if(runSize<1){
+////                        runSize = 1;
+////                    }
+////                    //创建两个计数器
+////                    CountDownLatch begin = new CountDownLatch(1);
+////                    CountDownLatch end = new CountDownLatch(runSize);
+////                    Result[] resultsCopy = new Result[1000];
+////                    for(int i=0;i<runSize;i++){ //循环创建线程
+////                        if((i+1)==runSize){//如果是最后一个
+////                            int startIndex = (i*count);
+////                            int endIndex = results.length-startIndex;
+////                            System.arraycopy(results,startIndex,resultsCopy,0,endIndex);
+////                        }else{
+////                            int startIndex = (i*count);
+//////                            int endIndex = ((i+1)*count);
+////                            System.arraycopy(results,startIndex,resultsCopy,0,count);
+////                        }
+////                        ImportAssetsDataRunner importAssetsDataRunner = new ImportAssetsDataRunner(resultsCopy,
+////                                RmAssetNewMapper,hbaseConnection,begin,end);
+////                        executorService.execute(importAssetsDataRunner);
+////                    }
+////                    begin.countDown();
+////                    end.await();
+////}
+//    //执行完关闭线程池
+////            executorService.shutdown();
+//    //释放扫描器
+////            rs.close();
+//    //获取某天0点的数据
+//    private String getCountStartTime(int dayNum) {
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+//        // 获取三十天前日期
+//        Calendar theCa = Calendar.getInstance();
+//        Date today = new Date();
+//        theCa.setTime(today);
+//        theCa.set(Calendar.HOUR_OF_DAY,0);
+//        theCa.set(Calendar.MINUTE, 0);
+//        theCa.set(Calendar.SECOND, 0);
+//        theCa.set(Calendar.MILLISECOND, 0);
+//        theCa.add(theCa.DATE, dayNum);// 最后一个数字30可改，30天的意思
+//        Date start = theCa.getTime();
+//        String day = sdf.format(start);
+//        log.info("开始时间："+day+"的数据");
+//        return day;
+//    }
+//
+//    public String getCountEndTime(int dayNum){
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+//        // 获取三十天前日期
+//        Calendar theCa = Calendar.getInstance();
+//        Date today = new Date();
+//        theCa.setTime(today);
+//        theCa.set(Calendar.HOUR_OF_DAY,23);
+//        theCa.set(Calendar.MINUTE, 59);
+//        theCa.set(Calendar.SECOND, 59);
+//        theCa.set(Calendar.MILLISECOND, 999);
+//        theCa.add(theCa.DATE, dayNum);// 最后一个数字30可改，30天的意思
+//        Date start = theCa.getTime();
+//        String day = sdf.format(start);
+//        log.info("结束时间："+day+"的数据");
+//        return day;
+//    }
+//
+//    private static HTable getTable(String tableName) throws IOException {
+//        return (HTable) hbaseConnection.getTable(TableName.valueOf(tableName));
 //    }
 //
 //
-//    private void setValue(String name, String value, RmAssetNew rmAssetNew)  {
+//
+//    private void setValue(String name,String value,RmAssetNew rmAssetNew)  {
 //        try {
 //            if(name.equalsIgnoreCase("ID")){
 //                rmAssetNew.setId(value);
@@ -396,18 +608,45 @@ public class TestJob{
 //        }
 //    }
 //
-//
 //    private void processingData(){
 //        log.info("开始跑任务");
 //        try {
-////            //查询总条数
-////            int totalCount = rmAssetNewMapper.findRmAssetByCount();
-////            if(totalCount >0){// 如果有数据的话
-////                for(int i =0;i < j; i +=500){ //每500条数据循环一次
-//                    long currentTime = System.currentTimeMillis();
-//                    log.info("分页查询开始时间：" + currentTime);
-//                    List<RmAssetNew> list = rmAssetNewMapper.findAssetNewByPage(startIndex,2000);
-//                    log.info("分页查询结束时间" + (System.currentTimeMillis() - currentTime));
+//            //查询总条数
+//            int totalCount = rmAssetNewMapper.findRmAssetByCount();
+//            if(totalCount >0){// 如果有数据的话
+//                List<CompanyCode> cpList = companyCodeMapper.selectList(null);//公司代码
+//                List<AssetZCLB> amList = assetZCLBMapper.selectList(null);//资产配别
+//                List<ZYCBLB> zyList = zycblbMapper.selectList(null);//作业成本类别
+//                List<JLDW> jldwList = jldwMapper.selectList(null);//计量单位
+//                List<MatterDeptment> swglbmList = matterDeptmentMapper.selectList(null);// 实物管理部门
+//                List<UseDeptment> sybmList = useDeptMentMapper.selectList(null); // 使用部门
+//                List<AssetsAsc> aaList = assetsAscMapper.selectList(null);// 资产归属
+//                List<AssetsNature> anList =assetsNatureMapper.selectList(null); // 资产性质
+//                List<AddReason> addRList = addReasonMapper.selectList(null);// 增加原因
+//                List<BoroughCompany> bcList = boroughCompanyMapper.selectList(null);// 区县分公司
+//                List<Branch> bList = branchMapper.selectList(null); // 支局清单
+//                List<BusinessHall> bhList = businessHallMapper.selectList(null); // 营业厅
+//                List<Station> stList = stationMapper.selectList(null); //基站
+//                List<Team> tList = teamMapper.selectList(null); // 班组
+//                List<DepreciaeRange> drList = depreciaeRangeMapper.selectList(null); // 折旧范围
+//                List<DepreciaeCode> dcList = depreciaeCodeMapper.selectList(null); // 折旧码
+//                List<PositionCode> pcList = positionCodeMapper.selectList(null);  // 科目定位码
+//                List<HBCostCenter> cbzxList = hbCostCenterMapper.selectList(null); // 成本中心
+//                List<ProfitCenterDTO> pList = profitCenterMapper.findProfitCenter();
+//
+//
+//                //创建一个线程池，最多同时跑20个线程
+////                int runSize = totalCount/500;
+////                if(runSize <1){
+////                    runSize = 1;
+////                }
+////                log.info("创建线程"+runSize);
+////
+////                ExecutorService executorService = new ThreadPoolExecutor(20,20,0l, TimeUnit.SECONDS,new LinkedBlockingDeque<>());
+////                CountDownLatch countDownLatch = new CountDownLatch(runSize); //总共要创建N个线程
+//                for(int i =0;i < totalCount; i +=500){ //每500条数据循环一次
+//                    List<RmAssetNew> list = rmAssetNewMapper.findAssetNewByPage(i,500);
+////                    IPage<RmAssetNew> rmAssetNewIPage = rmAssetNewMapper.selectPage(new Page<RmAssetNew>(i,500),null);
 //                    for(RmAssetNew ra :list){ //循环处理数据
 //                        AssetsInfo ai = new AssetsInfo();
 //                        // 20200614 添加字段
@@ -418,9 +657,6 @@ public class TestJob{
 //                        ai.setSoftwareManageDepartCode(ra.getZzRjjsglbm());
 //                        ai.setSoftwareMaintDepartCode(ra.getZzRjjswhbm());
 //                        ai.setStatus(ra.getStatus());
-//                        if(  StringUtils.isBlank(ra.getStatus())){
-//                            ra.setStatus(" ");
-//                        }
 //                        //  -------添加字段-end-----------------
 //
 //                        // 2020-4-23 资产状态处理
@@ -751,47 +987,32 @@ public class TestJob{
 //                                            .getOriginalValue()) // 原值
 //                                            || Double
 //                                            .parseDouble(ai.getOriginalValue()) <= 0) {
-////                                        //根据companyCode和cardCord查询一个AssetsInfolist
-////                                        Long nowTime3 = System.currentTimeMillis();
-////                                        log.info("临时表数据查询开始时间"+System.currentTimeMillis());
-////                                        List<AssetsInfo> aiList =assetsInfoMapper.findAssetsInfoTmepByComPanyCodeAndCardCode(ai.getCompanyCode(),ai.getCardCode(),ai.getCity());
-////                                        log.info("临时表数据查询结束时间"+(System.currentTimeMillis()-nowTime3));
-////                                        ai.setAssetsStatus("0".equals(ra.getStatus()) ? "0":"1");
-////                                        if (aiList != null && aiList.size() > 0) { // 如果aiList不为空,则证明数据库有这条数据，则修改
-////                                            AssetsInfo aiOld = aiList.get(0);
-////                                            ai.setCity("tmp_"+city);
-////                                            ai.setId(aiOld.getId());
-////                                            ai.setCurrentNodeId(aiOld.getCurrentNodeId());
-////                                            ai.setIsOutside(aiOld.getIsOutside());
-////                                            ai.setIsSubmitted(aiOld.getIsSubmitted());
-////                                            Long nowTime2 = System.currentTimeMillis();
-////                                            log.info("临时表数据修改开始时间"+System.currentTimeMillis());
-////                                            assetsInfoMapper.updateAssetsInfo(ai);
-////                                            log.info("临时表数据修改结束时间"+(System.currentTimeMillis()-nowTime2));
-////                                        }else{ // 如果没有，则新增
-////                                            ai.setCity("tmp_"+city);
-////                                            ai.setId(new ObjectId().toHexString());
-////                                            Long nowTime = System.currentTimeMillis();
-////                                            log.info("临时表数据插入开始时间"+System.currentTimeMillis());
-////                                            assetsInfoMapper.insertAssetsInfo(ai);
-////                                            log.info("临时表数据插入结束时间"+(System.currentTimeMillis()-nowTime));
-////                                        }
+//                                        //根据companyCode和cardCord查询一个AssetsInfolist
+//                                        List<AssetsInfo> aiList =assetsInfoMapper.findAssetsInfoTmepByComPanyCodeAndCardCode(ai.getCompanyCode(),ai.getCardCode(),ai.getCity());
+//                                        ai.setAssetsStatus("0".equals(ra.getStatus()) ? "0":"1");
+//                                        if (aiList != null && aiList.size() > 0) { // 如果aiList不为空,则证明数据库有这条数据，则修改
+//                                            AssetsInfo aiOld = aiList.get(0);
+//                                            ai.setCity("tmp_"+city);
+//                                            ai.setId(aiOld.getId());
+//                                            ai.setCurrentNodeId(aiOld.getCurrentNodeId());
+//                                            ai.setIsOutside(aiOld.getIsOutside());
+//                                            ai.setIsSubmitted(aiOld.getIsSubmitted());
+//                                            assetsInfoMapper.updateAssetsInfo(ai);
+//                                        }else{ // 如果没有，则新增
+//                                            ai.setCity("tmp_"+city);
+//                                            ai.setId(new ObjectId().toHexString());
+//                                            assetsInfoMapper.insertAssetsInfo(ai);
+//                                        }
 //                                    }else {
 //                                        ai.setCity(city);
 //                                        // 2020-4-23 加了两个状态码，如果资产状态是0，直接把资产置为无效
-//                                        if ("D".equals(ra.getOperation())  // 操作类型
+//                                        if ("D".equals(ra.getOperation()) // 操作类型
 //                                                || "0".equals(ra.getStatus())) {
-//                                            Long nowTime4 = System.currentTimeMillis();
-//                                            log.info("资产卡片表数据置为无效开始时间"+System.currentTimeMillis());
 //                                            assetsInfoMapper.updateAssetsStatusAndLastUpdateTime(ai.getCompanyCode(),ai.getCardCode(),ai.getCity());
-//                                            log.info("资产卡片表数据置为无效结束时间"+(System.currentTimeMillis()-nowTime4));
 //                                        }else{
-//                                            Long nowTime5 = System.currentTimeMillis();
-//                                            log.info("资产卡片表数据是否重复查询开始时间"+System.currentTimeMillis());
-//                                            List<AssetsInfo> aiList =  assetsInfoMapper.findAssetsInfoByComPanyCodeAndCardCode(ai.getCompanyCode(),ra.getAssetscardcode(),city);
-//                                            log.info("资产卡片表数据是否重复查询结束时间"+(System.currentTimeMillis()-nowTime5));
+//                                            List<AssetsInfo> aiList =  assetsInfoMapper.findAssetsInfoByComPanyCodeAndCardCode(ai.getCompanyCode(),ai.getCardCode(),ai.getCity());
 //                                            ai.setAssetsStatus("0".equals(ra.getStatus()) ? "0":"1");
-//                                            if (aiList.size() > 0) {
+//                                            if (aiList != null && aiList.size() > 0) {
 //                                                AssetsInfo aiOld = aiList.get(0);
 //                                                String newId = ai.getId();
 //                                                ai.setId(aiOld.getId());
@@ -802,20 +1023,13 @@ public class TestJob{
 //                                                ai.setCheckStatus(aiOld.getCheckStatus());
 //                                                ai.setCheckResult(aiOld.getCheckResult());
 //                                                ai.setUserName(aiOld.getUserName());
-//                                                ai.setAssetsStatus("1");
-//                                                Long nowTime6 = System.currentTimeMillis();
-//                                                log.info("卡实表数据查询开始时间"+System.currentTimeMillis());
 //                                                List<Map<String,Object>> raeList = assetsInfoMapper.findAssetEntityNewByAssetId(newId);
-//                                                log.info("卡实表数据查询结束时间"+(System.currentTimeMillis()-nowTime6));
 //                                                if(raeList.size()>0){
 //                                                    ai.setRelationId(MapUtils.getString(raeList.get(0),"relationID"));
 //                                                    ai.setRelationIdMark("1");
 //                                                }
 //                                                aiOld.setCity(city);
-//                                                Long nowTime7 = System.currentTimeMillis();
-//                                                log.info("资产卡片表表数据修改开始时间"+System.currentTimeMillis());
 //                                                assetsInfoMapper.updateAssetsInfo(ai);
-//                                                log.info("资产卡片表表数据修改结束时间"+(System.currentTimeMillis()-nowTime7));
 //                                            }else{
 //                                                List<Map<String,Object>> raeList = assetsInfoMapper.findAssetEntityNewByAssetId(ai.getId());
 //                                                if (raeList.size() > 0) {
@@ -827,30 +1041,34 @@ public class TestJob{
 //                                                }
 //                                                ai.setCity(city);
 //                                                ai.setId(new ObjectId().toHexString());
-//                                                Long nowTime8 = System.currentTimeMillis();
-//                                                log.info("资产卡片表表数据插入开始时间"+System.currentTimeMillis());
-//                                                assetsInfoMapper.insertAssetsInfo(ai);
-//                                                log.info("资产卡片表表数据插入结束时间"+(System.currentTimeMillis()-System.currentTimeMillis()));
+//                                                    assetsInfoMapper.insertAssetsInfo(ai);
 //                                            }
 //                                        }
 //                                    }
 //                                }
 //                            }
 //                        }
-//                        Long nowTime = System.currentTimeMillis();
-//                        log.info("数据删除开始时间"+System.currentTimeMillis());
-//                        rmAssetNewMapper.deleteById(ra.getId());
-//                        log.info("数据删除结束时间"+(System.currentTimeMillis()-nowTime));
 //                    }
-////                }
-////            }
+//
+//
+////                    IPage<RmAssetNew> rmAssetNewIPage = rmAssetNewMapper.selectPage(new Page<RmAssetNew>(i,500),null);
+////                    HandleAssetsDataRunner handleAssetsDataRunner = new HandleAssetsDataRunner(rmAssetNewMapper,assetsInfoMapper,
+////                            rmAssetNewIPage.getRecords(),cpList,amList,zyList,jldwList,swglbmList,sybmList,aaList,anList,addRList,
+////                            bcList,bList,bhList,stList,tList,drList,dcList,pcList,cbzxList,pList);
+////                    executorService.execute(handleAssetsDataRunner);
+////                        countDownLatch.countDown();// 业务逻辑走完，计数器减一
+//                }
+//                // 同步，判断所有线程执行完毕
+////                countDownLatch.await();
+////            }else{
+////                log.info("RM_ASSET_NEW没有数据");
+//            }
 //            log.info("跑完了");
 //            log.info("跑完了");
 //        }catch (Exception e){
 //            e.printStackTrace();
 //        }
 //    }
-//
 //    /**
 //     * 是否包含汉字<br>
 //     * 根据汉字编码范围进行判断<br>
@@ -867,31 +1085,44 @@ public class TestJob{
 //        return pattern.matcher(str).find();
 //    }
 //
-////    @Override
-////    public void run(ApplicationArguments args) throws Exception {
-////        ExecutorService executorService = Executors.newFixedThreadPool(5);
-////        int count = 1000; //每条线程去处理1000条数据
-////        int totalCount = rmAssetNewMapper.findRmAssetByCount();
-////        int runSize = totalCount/1000;
-////
-////        if(runSize<1){
-////            runSize = 1;
-////        }
-////        //创建两个计数器
-////        CountDownLatch begin = new CountDownLatch(1);
-////        CountDownLatch end = new CountDownLatch(runSize);
-////        for(int i=0;i<runSize;i++){ //循环创建线程
-////            if((i+1)==runSize){//如果是最后一个
-////                int startIndex = (i*count);
-////                int endIndex = totalCount-startIndex;
-////            }else{
-////                int startIndex = (i*count);
-////                               int endIndex = ((i+1)*count);
-////            }
-////            executorService.execute(processingData());
-////        }
-////        begin.countDown();
-////        end.await();
-//////        processingData();
-////    }
+//    @Override
+//    public void run(ApplicationArguments args) throws Exception {
+//        importAssetsFromHabse();
+//    }
+//
+//    public String getEndTime( String startTime){
+//        try {
+//            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            format.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+//            Date date = format.parse(startTime);
+//            format.setTimeZone(TimeZone.getTimeZone("GMT+1"));
+//            return format.format(date);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        return  null;
+//    }
+//
+//
+//    /**
+//     * 获取从今天起前几天或者后期天时间戳
+//     *
+//     * @param dayNum
+//     *            正为后几天，负为前几天
+//     * @return
+//     */
+//    private String getCountTime(int dayNum) {
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//
+//        // 获取三十天前日期
+//        Calendar theCa = Calendar.getInstance();
+//        Date today = new Date();
+//        theCa.setTime(today);
+//        theCa.add(theCa.DATE, dayNum);// 最后一个数字30可改，30天的意思
+//        Date start = theCa.getTime();
+//        String day = sdf.format(start);
+//        //day = "2019-04-26";
+//        log.info("获取日期："+day+"的数据");
+//        return day;
+//    }
 }

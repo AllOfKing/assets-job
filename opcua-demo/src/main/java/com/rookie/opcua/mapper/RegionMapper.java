@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface RegionMapper extends BaseMapper<Region> {
     List<Region> findRegionByParentId(@Param("parentId") String parentId);
+
 }

@@ -103,11 +103,11 @@
 
 
     <select id="findById" resultType="com.rookie.opcua.entity.RmAssetNew">
-        select * from RM_ASSET_NEW_0904 where id = #{id}
+        select * from RM_ASSET_NEW_0904_test where id = #{id}
     </select>
 
     <select id="findRmAssetByCount" resultType="integer">
-        select count(*) from RM_ASSET_NEW_0904
+        select count(*) from RM_ASSET_NEW_${dayString}
     </select>
 
     <insert id="insertRmAssetsList" parameterType="com.rookie.opcua.dto.RmAssetNewListDTO">
@@ -208,11 +208,11 @@
 
     </insert>
     <update id="truncateRmAssets">
-        truncate table RM_ASSET_NEW_0904
+        truncate table RM_ASSET_NEW_0904_test
     </update>
 
     <select id="findAssetNewByPage" resultType="com.rookie.opcua.entity.RmAssetNew">
-        select * from RM_ASSET_NEW_0904 limit #{start},#{size}
+        select * from RM_ASSET_NEW_${dayString} limit #{start},#{size}
     </select>
 
 
@@ -221,7 +221,7 @@
     </update>
 
     <update id="deleteById" parameterType="String">
-        delete from RM_ASSET_NEW_0904 where id = #{id}
+        delete from RM_ASSET_NEW_${dayString} where id = #{id}
     </update>
 
 
