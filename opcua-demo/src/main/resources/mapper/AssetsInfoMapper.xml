@@ -11,7 +11,7 @@
     </select>
 
     <select id = "findAssetsInfoByComPanyCodeAndCardCode" parameterType="String" resultType="com.rookie.opcua.entity.AssetsInfo">
-        select * from t_assets_info_${city} where  card_code = #{cardCode} AND  assets_status = '1'
+        select * from t_assets_info_${city} where company_code = #{companyCode} and  card_code = #{cardCode} AND  assets_status = '1'
     </select>
 
     <select id="findAssetsInfoByCompanyCodeAndCardCodeOrderByCreateTime" parameterType="String" resultType="com.rookie.opcua.entity.AssetsInfo">
@@ -933,7 +933,7 @@
         SELECT
         YEAR(t.`create_time`) AS `invent_year`,
         o.id AS deptId,
-        o.DEPARTMENT_NAME AS dept_name,
+        o.DESCRIPTION AS dept_name,
         t.company_code AS company_code,
         o.`PARENT_ID`  AS p_id,
         IF(o.PARENT_ID IS NOT NULL,1,0) AS is_leaf,

@@ -28,7 +28,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 @Slf4j
-//@Component
+@Component
 public class ImportAssetsFromHbaseJob implements  ApplicationRunner{
 
     private static Connection hbaseConnection;
@@ -106,6 +106,7 @@ public class ImportAssetsFromHbaseJob implements  ApplicationRunner{
                 // 创建分表
                 SimpleDateFormat sf = new SimpleDateFormat("MMdd");
                 SimpleDateFormat sf2 = new SimpleDateFormat("yyyy-MM-dd");
+                String dayStriing = sf.format(sf2.parse(day.getDay()));
                 rmAssetNewMapper.createSubTable(sf.format(sf2.parse(day.getDay())));
                 rmAssetsLogMapper.createSubTable(sf.format(sf2.parse(day.getDay())));
                 //将开始时间与当前时间作比对，当前时间推后一个小时
@@ -227,13 +228,13 @@ public class ImportAssetsFromHbaseJob implements  ApplicationRunner{
                 hbaseAssetNewLog.setCreateTime(new Date());
                 hbaseAssetNewLog.setId(new ObjectId().toHexString());
                 hbaseAssetNewLogMapper.insertHbaseLog(hbaseAssetNewLog);
+                log.info("接口数据获取完毕");
+                //获取完所有数据之后，开始数据转换
+                processingData(dayStriing);
             }catch (Exception e){
                 e.printStackTrace();
                 break;
             }
-            log.info("接口数据获取完毕");
-            //获取完所有数据之后，开始数据转换
-//            processingData();
         }
     }
 
@@ -543,11 +544,11 @@ public class ImportAssetsFromHbaseJob implements  ApplicationRunner{
         }
     }
 
-    private void processingData(){
+    private void processingData(String dayString){
         log.info("开始跑任务");
         try {
             //查询总条数
-            int totalCount = rmAssetNewMapper.findRmAssetByCount();
+            int totalCount = rmAssetNewMapper.findRmAssetByCount(dayString);
             if(totalCount >0){// 如果有数据的话
                 List<CompanyCode> cpList = companyCodeMapper.selectList(null);//公司代码
                 List<AssetZCLB> amList = assetZCLBMapper.selectList(null);//资产配别
@@ -571,7 +572,7 @@ public class ImportAssetsFromHbaseJob implements  ApplicationRunner{
 
 
                 for(int i =0;i < totalCount; i +=500){ //每500条数据循环一次
-                    List<RmAssetNew> list = rmAssetNewMapper.findAssetNewByPage(i,500);
+                    List<RmAssetNew> list = rmAssetNewMapper.findAssetNewByPage(i,500,dayString);
                     for(RmAssetNew ra :list){ //循环处理数据
                         AssetsInfo ai = new AssetsInfo();
                         // 20200614 添加字段
@@ -846,7 +847,7 @@ public class ImportAssetsFromHbaseJob implements  ApplicationRunner{
                         ai.setUnactiveDate(ra.getInactivedate());
                         ai.setPurchasedDate(ra.getPurchasedate());
                         ai.setPurchasedYear(ra.getPurchaseyear());
-                        ai.setPurchasedDate(ra.getFirstbilling());
+                        ai.setFirstBilling(ra.getFirstbilling());
                         // 是否停用
                         if ("100383".equals(ra.getIsdisable())) {// 是
                             ai.setIsDisable("1");
@@ -972,6 +973,7 @@ public class ImportAssetsFromHbaseJob implements  ApplicationRunner{
                                 }
                             }
                         }
+                        rmAssetNewMapper.deleteById(ra.getId(),dayString);
                     }
                 }
             }

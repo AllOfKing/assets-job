@@ -16,7 +16,7 @@ import java.util.Map;
 public interface AssetsInfoMapper extends BaseMapper<AssetsInfo> {
      List<AssetsInfo> findAssetsInfoTmepByComPanyCodeAndCardCode(@Param("companyCode") String companyCode, @Param("cardCode") String cardCode,@Param("city")String city);
 
-     List<AssetsInfo> findAssetsInfoByComPanyCodeAndCardCode(@Param("cardCode") String cardCode,@Param("city")String city);
+     List<AssetsInfo> findAssetsInfoByComPanyCodeAndCardCode(@Param("companyCode")String companyCode,@Param("cardCode") String cardCode,@Param("city")String city);
 
      List<Map<String,String>> findAssetsInfoRepeatCardCode(@Param("city") String city);
 

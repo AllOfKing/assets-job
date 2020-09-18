@@ -13,17 +13,17 @@ public interface RmAssetNewMapper  extends BaseMapper<RmAssetNew> {
 
     RmAssetNew findById(@Param("id") String id);
 
-    int findRmAssetByCount();
+    int findRmAssetByCount(@Param("dayString") String dayString);
 
     void insertRmAssetsList(RmAssetNewListDTO rmAssetNewListDTO);
 
     void truncateRmAssets();
 
-    List<RmAssetNew> findAssetNewByPage(int start,int size);
+    List<RmAssetNew> findAssetNewByPage(@Param("start") int start,@Param("size") int size,@Param("dayString") String dayString);
 
     void createSubTable(@Param("dateString") String dateString);
 
-    void deleteById(@Param("id") String id);
+    void deleteById(@Param("id") String id,@Param("dayString") String dayString);
 
     List<String> findAssetNewRepeat(@Param("city") String city);
 

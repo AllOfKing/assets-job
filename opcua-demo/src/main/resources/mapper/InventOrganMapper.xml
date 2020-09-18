@@ -6,4 +6,7 @@
         select id ,parent_id , description, region_id from sys_invent_organ
         where region_id = #{regionId} and is_valid = '1'
     </select>
+    <select id="findInventOrganRegionByParentId" parameterType="String" resultType="com.rookie.opcua.entity.InventOrgan">
+        SELECT * FROM sys_invent_organ WHERE PARENT_ID = #{organId}
+    </select>
 </mapper>
